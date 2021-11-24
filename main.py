@@ -1,6 +1,8 @@
 import telebot
 import datetime
+import os
 import re
+from telebot import types
 from babel.dates import format_date, format_datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -21,34 +23,107 @@ x2 = datetime.datetime.date(x)
 date_today = format_date(x2, locale='de_DE')
 
 
-# последовательность
-@bot.message_handler(commands=['news_today'])
-def answer(message):
-    send = bot.send_message(message.chat.id, '''Выберите номер сайта:\b
-            zerno.ru = 1
-            zol.ru = 2
-            agroinvestor.ru = 3
-            agriculture.com = 4
-            ПОИСК = '5'
-            ''')
-    bot.register_next_step_handler(send, get_news)
+# InlineKeyboardMarkup - кнопки привязаны к тексту
+# ReplyKeyboardMarkup - кнопки находятся под чатом
+# InlineKeyboardButton - кнопка в чате
+# KeyboardButton - кнопка под вводом текста
+# (one_time_keyboard=True) - убирать кнопки после нажатия
+
+@bot.message_handler(commands=['start', 'help'])
+def send_welcome(message):
+    bot.send_message(message.chat.id, "Привет новичок! Я новостной бот. :)")
+    MainMenue(message)
+
+def MainMenue(message):
+    markup = types.InlineKeyboardMarkup()
+    button1 = types.InlineKeyboardButton(text="Сайт 1", callback_data="Site1")
+    button2 = types.InlineKeyboardButton(text="Сайт 2", callback_data="Site2")
+    button3 = types.InlineKeyboardButton(text="Сайт 3", callback_data="Site3")
+    button4 = types.InlineKeyboardButton(text="Сайт 4", callback_data="Site4")
+    button5 = types.InlineKeyboardButton(text="Поиск", callback_data="FindByWord")
+    button6 = types.InlineKeyboardButton(text="Добавить синоним", callback_data="AddSynonim")
+    markup.add(button1).add(button2).add(button3).add(button4).add(button5).add(button6)
+    bot.send_message(message.chat.id,
+                     "Здесь ты можешь выбрать с какого сайта посмотреть новости, или найти новость по ключевому слову. Добавление синонимов улучшает качество поиска!",
+                     reply_markup=markup)
 
 
-def get_news(message):
-    a = message.text
-    if a == '1':
-        zerno_ru(message)
-    elif a == '2':
-        zol_ru(message)
-    elif a == '3':
-        agroinvestor_ru(message)
-    elif a == '4':
-        agriculture_com(message)
-    elif a == '5':
-        send = bot.send_message(message.chat.id, '''Введите ключевое слово:''')
-        bot.register_next_step_handler(send, read_txt)
+@bot.callback_query_handler(func=lambda call: True)
+def callback_inline(call):
+   try:
+       if call.message:
+           if call.data == "Menue":
+               MainMenue(call.message)
+           if call.data == "Site1":
+               zerno_ru()
+           if call.data == "Site2":
+               zol_ru()
+           if call.data == "Site3":
+               agroinvestor_ru()
+           if call.data == "Site4":
+               agriculture_com()
+           if call.data == "FindByWord":
+               bot.send_message(call.message.chat.id, "Введите слово для поиска.")
+               bot.register_next_step_handler(call.message, FindNews)
+           if call.data == "AddSynonim":
+               send = bot.send_message(call.message.chat.id, "Введите слово к которому добавляем синоним.")
+               bot.register_next_step_handler(send, AddSynonimTo)
+   except Exception as e:
+       print(repr(e))
+
+def AddSynonimTo(SynTo):
+    global SynToGlobal
+    SynToGlobal = ""
+
+    if SynToGlobal.find(' ') != -1:
+         send = bot.send_message(SynTo.chat.id, "похоже что вы ввели не одно слово, повторите пожалуйста")
+         bot.register_next_step_handler(send, AddSynonimTo)
+
+    SynToGlobal = SynTo.text.lower()
+    print(SynToGlobal)
+    send = bot.send_message(SynTo.chat.id, "Отлично теперь введите синосим")
+    bot.register_next_step_handler(send, AddSynonimWord)
+
+def AddSynonimWord(SynWord):
+    f = open('dict.txt', 'r', encoding='utf-8')
+    f_lines = f.readlines()
+    f.close()
+
+    os.system(r'nul>file.txt')
+
+    f = open('dict.txt', 'w', encoding='utf-8')
+    HavWordToSyn = False
+    DoubleSyn = False
+    SynWordText = SynWord.text.lower()
+    for line in f_lines:
+        if line.find(SynWordText) != -1:
+            DoubleSyn = True
+
+        if line.find(SynToGlobal) != -1:
+            if DoubleSyn == False:
+                f.write(line + " " + SynWordText)
+            else:
+                f.write(line)
+            print('говно найдено')
+            HavWordToSyn = True
+        else:
+            f.write(line)
+
+    if DoubleSyn == False:
+        if HavWordToSyn == False:
+            bot.send_message(SynWord.chat.id, "слово не найдено, добавляем.")
+            if(f_lines.count("\n") == 1):
+                f.write("\n")
+            f.write(SynToGlobal + " " + SynWordText)
+        bot.send_message(SynWord.chat.id, "Слово успешно добавлено.")
     else:
-        bot.send_message(message.chat.id, '''Мы не нашли номер, введите заново.''')
+        bot.send_message(SynWord.chat.id, "Введенный вами синоним уже есть в списке")
+
+    markup = types.InlineKeyboardMarkup()
+    GoBack = types.InlineKeyboardButton(text="Назад", callback_data="Menue")
+    Write = types.InlineKeyboardButton(text="Повторить", callback_data="AddSynonim")
+    markup.add(GoBack,Write)
+    bot.send_message(SynWord.chat.id, "Вернуться назад, или повторить",reply_markup=markup)
 
 
 # -------------- ПАРСЕР -----------------
@@ -82,7 +157,7 @@ def zerno_ru():
 
 
 # вывод сообщения в чат и zol_ru(message)
-def zol_ru():
+def zol_ru(message):
     url = 'https://www.zol.ru/news/grain/'
     driver.get(url)
 
@@ -185,34 +260,8 @@ def agriculture_com():
 # -------------- СЛОВАРЬ -----------------
 
 
-# добавление ключевого слова
-def dict_new_word(message):
-    f = open('dict.txt', 'a', encoding='utf-8')
-    word = 'бляьб1111'
-    f.write('\n')
-    f.write(word + ' ')
-    f.close
-
-
-# добавление синонимов к ключевому слову
-def synonym(message):
-    f = open('dict.txt', 'a', encoding='utf-8')
-    word = ['сука', 'ааа', 'нееееет']
-    for elem in word:
-        f.write(elem + ' ')
-    f.close
-
-
-# чтение последней строки, чтобы показать результат запроса
-def print_last_line(message):
-    f = open('dict.txt', 'r', encoding='utf-8')
-    last_line = f.readlines()[-1]
-    f.close
-    return last_line
-
-
 # цикл чтения словаря, для поиска ключевого слова
-def read_txt(message):
+def FindNews(message):
     message_lower_text = message.text.lower()
     print('\nмеседж ловер')
     try:
@@ -260,3 +309,42 @@ def read_txt(message):
 
 
 bot.infinity_polling()
+
+
+#------------------------------МУСОР ЕБАНЫЙ---------------------------------
+
+
+@bot.message_handler(commands=['Find_By_Word'])
+def answer(message):
+    send = bot.send_message(message.chat.id, '''Выберите номер сайта:\b
+            zerno.ru = 1
+            zol.ru = 2
+            agroinvestor.ru = 3
+            agriculture.com = 4
+            ПОИСК = '5'
+            ''')
+
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True,row_width=2)
+    button1 = types.KeyboardButton(" Привет")
+    button2 = types.KeyboardButton(" Как дела?")
+    markup.add(button1,button2)
+    bot.send_message(message.chat.id, "Нажми на кнопку и перейди на наш сайт.", reply_markup=markup)
+    bot.register_next_step_handler(send, get_news)
+
+
+def get_news(message):
+    a = message.text
+    if a == '1':
+        zerno_ru(message)
+    elif a == '2':
+        zol_ru(message)
+    elif a == '3':
+        agroinvestor_ru(message)
+    elif a == '4':
+        agriculture_com(message)
+    elif a == '5':
+        send = bot.send_message(message.chat.id, '''Введите ключевое слово:''')
+        bot.register_next_step_handler(send, FindNews)
+    else:
+        bot.send_message(message.chat.id, '''Мы не нашли номер, введите заново.''')
+
