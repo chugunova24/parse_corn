@@ -36,15 +36,15 @@ def send_welcome(message):
 
 def MainMenue(message):
     markup = types.InlineKeyboardMarkup()
-    button1 = types.InlineKeyboardButton(text="Сайт 1", callback_data="Site1")
-    button2 = types.InlineKeyboardButton(text="Сайт 2", callback_data="Site2")
-    button3 = types.InlineKeyboardButton(text="Сайт 3", callback_data="Site3")
-    button4 = types.InlineKeyboardButton(text="Сайт 4", callback_data="Site4")
+    # button1 = types.InlineKeyboardButton(text="Сайт 1", callback_data="Site1")
+    # button2 = types.InlineKeyboardButton(text="Сайт 2", callback_data="Site2")
+    # button3 = types.InlineKeyboardButton(text="Сайт 3", callback_data="Site3")
+    # button4 = types.InlineKeyboardButton(text="Сайт 4", callback_data="Site4")
     button5 = types.InlineKeyboardButton(text="Поиск", callback_data="FindByWord")
     button6 = types.InlineKeyboardButton(text="Добавить синоним", callback_data="AddSynonim")
-    markup.add(button1).add(button2).add(button3).add(button4).add(button5).add(button6)
+    markup.add(button5).add(button6)
     bot.send_message(message.chat.id,
-                     "Здесь ты можешь выбрать с какого сайта посмотреть новости, или найти новость по ключевому слову. Добавление синонимов улучшает качество поиска!",
+                     "Здесь Вы можете найти новость по ключевому слову. Добавление синонимов улучшает качество поиска!",
                      reply_markup=markup)
 
 
@@ -54,14 +54,14 @@ def callback_inline(call):
        if call.message:
            if call.data == "Menue":
                MainMenue(call.message)
-           if call.data == "Site1":
-               zerno_ru()
-           if call.data == "Site2":
-               zol_ru()
-           if call.data == "Site3":
-               agroinvestor_ru()
-           if call.data == "Site4":
-               agriculture_com()
+           # if call.data == "Site1":
+           #     zerno_ru()
+           # if call.data == "Site2":
+           #     zol_ru()
+           # if call.data == "Site3":
+           #     agroinvestor_ru()
+           # if call.data == "Site4":
+           #     agriculture_com()
            if call.data == "FindByWord":
                bot.send_message(call.message.chat.id, "Введите слово для поиска.")
                bot.register_next_step_handler(call.message, FindNews)
@@ -157,7 +157,7 @@ def zerno_ru():
 
 
 # вывод сообщения в чат и zol_ru(message)
-def zol_ru(message):
+def zol_ru():
     url = 'https://www.zol.ru/news/grain/'
     driver.get(url)
 
@@ -267,7 +267,9 @@ def FindNews(message):
     try:
         n1 = zerno_ru()
         n2 = zol_ru()
-        a = n1 + n2
+        n3 = agroinvestor_ru()
+        n4 = agriculture_com()
+        a = n1 + n2 + n3 + n4
         # print('ПОЛНЫЙ СПИСОК', a)
     except Exception:
        print('ОШИБКА ПОИСКА')
@@ -283,9 +285,9 @@ def FindNews(message):
         print(key)
         if line.find(key) != -1:
             txt_line = line.split(' ')
-            print('говно найдено', txt_line)
+            print('слово найдено', txt_line)
     if not txt_line:
-        bot.send_message(message.chat.id, '')
+        return bot.send_message(message.chat.id, 'Новостей на сегодня нет')
 
     # print('\nстроки прочитаны')
     # поиск в файле строки с нужным набором слов (выход str)
@@ -304,6 +306,10 @@ def FindNews(message):
 
     print('\nрезультат итоговый')
     r_set = set(result)
+
+    for elem_r_set in r_set:
+        bot.send_message(message.chat.id, elem_r_set)
+
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(r_set)
 
@@ -311,40 +317,40 @@ def FindNews(message):
 bot.infinity_polling()
 
 
-#------------------------------МУСОР ЕБАНЫЙ---------------------------------
+#------------------------------ МУСОР ---------------------------------
 
 
-@bot.message_handler(commands=['Find_By_Word'])
-def answer(message):
-    send = bot.send_message(message.chat.id, '''Выберите номер сайта:\b
-            zerno.ru = 1
-            zol.ru = 2
-            agroinvestor.ru = 3
-            agriculture.com = 4
-            ПОИСК = '5'
-            ''')
-
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True,row_width=2)
-    button1 = types.KeyboardButton(" Привет")
-    button2 = types.KeyboardButton(" Как дела?")
-    markup.add(button1,button2)
-    bot.send_message(message.chat.id, "Нажми на кнопку и перейди на наш сайт.", reply_markup=markup)
-    bot.register_next_step_handler(send, get_news)
-
-
-def get_news(message):
-    a = message.text
-    if a == '1':
-        zerno_ru(message)
-    elif a == '2':
-        zol_ru(message)
-    elif a == '3':
-        agroinvestor_ru(message)
-    elif a == '4':
-        agriculture_com(message)
-    elif a == '5':
-        send = bot.send_message(message.chat.id, '''Введите ключевое слово:''')
-        bot.register_next_step_handler(send, FindNews)
-    else:
-        bot.send_message(message.chat.id, '''Мы не нашли номер, введите заново.''')
+# @bot.message_handler(commands=['Find_By_Word'])
+# def answer(message):
+#     send = bot.send_message(message.chat.id, '''Выберите номер сайта:\b
+#             zerno.ru = 1
+#             zol.ru = 2
+#             agroinvestor.ru = 3
+#             agriculture.com = 4
+#             ПОИСК = '5'
+#             ''')
+#
+#     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True,row_width=2)
+#     button1 = types.KeyboardButton(" Привет")
+#     button2 = types.KeyboardButton(" Как дела?")
+#     markup.add(button1,button2)
+#     bot.send_message(message.chat.id, "Нажми на кнопку и перейди на наш сайт.", reply_markup=markup)
+#     bot.register_next_step_handler(send, get_news)
+#
+#
+# def get_news(message):
+#     a = message.text
+#     if a == '1':
+#         zerno_ru(message)
+#     elif a == '2':
+#         zol_ru(message)
+#     elif a == '3':
+#         agroinvestor_ru(message)
+#     elif a == '4':
+#         agriculture_com(message)
+#     elif a == '5':
+#         send = bot.send_message(message.chat.id, '''Введите ключевое слово:''')
+#         bot.register_next_step_handler(send, FindNews)
+#     else:
+#         bot.send_message(message.chat.id, '''Мы не нашли номер, введите заново.''')
 
