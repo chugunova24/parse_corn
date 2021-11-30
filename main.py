@@ -8,6 +8,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 import pprint
+import asyncio
 
 # работа браузера без интерфейса
 option = Options()
@@ -128,7 +129,7 @@ def AddSynonimWord(SynWord):
 
 # -------------- ПАРСЕР -----------------
 
-def zerno_ru():
+async def zerno_ru():
     url = 'https://zerno.ru/news_list'
     driver.get(url)
 
@@ -157,7 +158,7 @@ def zerno_ru():
 
 
 # вывод сообщения в чат и zol_ru(message)
-def zol_ru():
+async def zol_ru():
     url = 'https://www.zol.ru/news/grain/'
     driver.get(url)
 
@@ -180,7 +181,8 @@ def zol_ru():
     try:
         index_elem = cell_news_arr.index(date_today)
     except ValueError:
-        bot.send_message(message.chat.id, 'На сайте https://www.zol.ru/ (2) нет сегодня новостей!')
+        # bot.send_message(message.chat.id, 'На сайте https://www.zol.ru/ (2) нет сегодня новостей!')
+        print('На сайте https://www.zol.ru/ (2) нет сегодня новостей!')
         return
 
     del cell_news_arr[index_elem:]
@@ -201,7 +203,7 @@ def zol_ru():
     #     bot.send_message(message.chat.id, x)
 
 
-def agroinvestor_ru():
+async def agroinvestor_ru():
     url = 'https://www.agroinvestor.ru/'
     driver.get(url)
 
@@ -229,7 +231,7 @@ def agroinvestor_ru():
     #     bot.send_message(message.chat.id, x)
 
 
-def agriculture_com():
+async def agriculture_com():
     url = 'https://www.agriculture.com/search?search_api_views_fulltext=&sort_by=created'
     driver.get(url)
 
@@ -258,17 +260,24 @@ def agriculture_com():
 
 
 # -------------- СЛОВАРЬ -----------------
-
-
+def FindNews(mess):
+    asyncio.run(asyncFindNews(mess))
 # цикл чтения словаря, для поиска ключевого слова
-def FindNews(message):
+async def asyncFindNews(message):
+
+    task1 = asyncio.create_task (zerno_ru())
+    task2 = asyncio.create_task(zol_ru())
+    task3 = asyncio.create_task(agroinvestor_ru())
+    task4 = asyncio.create_task(agriculture_com())
+    await asyncio.wait([task1,task2,task3,task4])
+
     message_lower_text = message.text.lower()
     print('\nмеседж ловер')
     try:
-        n1 = zerno_ru()
-        n2 = zol_ru()
-        n3 = agroinvestor_ru()
-        n4 = agriculture_com()
+        n1 = task1.result()
+        n2 = task2.result()
+        n3 = task3.result()
+        n4 = task4.result()
         a = n1 + n2 + n3 + n4
         # print('ПОЛНЫЙ СПИСОК', a)
     except Exception:
@@ -312,7 +321,6 @@ def FindNews(message):
 
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(r_set)
-
 
 bot.infinity_polling()
 
