@@ -10,11 +10,13 @@ from selenium.webdriver.common.by import By
 import pprint
 import asyncio
 
-# работа браузера без интерфейса
-option = Options()
-option.headless = False
+def browser_work():
+    # работа браузера без интерфейса
+    option = Options()
+    option.headless = False
 
-driver = webdriver.Chrome(options=option)
+    driver = webdriver.Chrome(options=option)
+
 
 TOKEN = '2016761889:AAF0Baan6ouhKLwClb0O4utKv47wnclaZEA'
 bot = telebot.TeleBot(TOKEN)
@@ -130,6 +132,7 @@ def AddSynonimWord(SynWord):
 # -------------- ПАРСЕР -----------------
 
 async def zerno_ru():
+    browser_work()
     url = 'https://zerno.ru/news_list'
     driver.get(url)
 
