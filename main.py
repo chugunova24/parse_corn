@@ -4,18 +4,22 @@ import os
 import re
 from telebot import types
 from babel.dates import format_date, format_datetime
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
+# from selenium import webdriver
+# from selenium.webdriver.chrome.options import Options
+# from selenium.webdriver.common.by import By
 import pprint
 import asyncio
+from bs4 import BeautifulSoup
+import requests
+from urllib.request import urlopen
+from lxml import etree
 
-def browser_work():
-    # работа браузера без интерфейса
-    option = Options()
-    option.headless = False
-
-    driver = webdriver.Chrome(options=option)
+# def browser_work():
+#     # работа браузера без интерфейса
+#     option = Options()
+#     option.headless = False
+#
+#     driver = webdriver.Chrome(options=option)
 
 
 TOKEN = '2016761889:AAF0Baan6ouhKLwClb0O4utKv47wnclaZEA'
@@ -130,34 +134,76 @@ def AddSynonimWord(SynWord):
 
 
 # -------------- ПАРСЕР -----------------
-
+# @bot.message_handler(commands='z1')
 async def zerno_ru():
-    browser_work()
-    url = 'https://zerno.ru/news_list'
-    driver.get(url)
 
-    xPATH = '''//*[text()='%s']''' % date_today
-    xPATH_link = '''//*[text()='%s']//../../span[2]/span/a''' % date_today
+    # ЧЕРЕЗ SELENIUM
 
-    # ищет новости на сегодня
+    # url = 'https://zerno.ru/news_list'
+    # driver.get(url)
+    #
+    # xPATH = '''//*[text()='%s']''' % date_today
+    # xPATH_link = '''//*[text()='%s']//../../span[2]/span/a''' % date_today
+    #
+    # # ищет новости на сегодня
+    # cell_news_arr = []
+    # cell_news = driver.find_elements(By.XPATH, xPATH_link)
+    # for i in cell_news:
+    #     cell_news_arr.append(i.text)
+    #
+    # # поиск ссылок
+    # news_link_arr = []
+    # news_link = driver.find_elements(By.XPATH, xPATH_link)
+    # for j in news_link:
+    #     a_link = j.get_attribute('href')
+    #     news_link_arr.append(a_link)
+    #
+    # message_text = ["%s %02s" % t for t in zip(cell_news_arr, news_link_arr)]
+    # # print(message_text)
+    # # for x in message_text:
+    # #     bot.send_message(message.chat.id, x)
+    #
+    # return message_text
+
+    # ЧЕРЕЗ BS4
+    xPATH = '''//*[text()='%s']//../../span[2]/span/a''' % date_today
+    xPATH_link = '''//*[text()='%s']//../../span[2]/span/a/@href''' % date_today
+
+    URL = 'https://zerno.ru/news_list'
+    # response = urlopen(url)
+    # htmlparser = etree.HTMLParser()
+    # tree = etree.parse(response, htmlparser)
+    # a = tree.xpath(xPATH_link)
+    webpage = requests.get(URL)
+    soup = BeautifulSoup(webpage.content, "html.parser")
+    dom = etree.HTML(str(soup))
+    count_index = dom.xpath(xPATH)
+    # count_index = len(count_index)
+    # bukva = True
+    # if bukva == True:
+    #     for index:
+    #         index =+1
+    #         print(dom.xpath(xPATH_link)[index].text)
+
+    # поиск содержимого блоков
     cell_news_arr = []
-    cell_news = driver.find_elements(By.XPATH, xPATH_link)
-    for i in cell_news:
-        cell_news_arr.append(i.text)
+    for i in range(0, len(count_index)):
+        a = dom.xpath(xPATH)[i].text
+        cell_news_arr.append(a)
+    print(cell_news_arr)
+    for x in cell_news_arr:
+        bot.send_message(message.chat.id, x)
+    # bot.send_message(message.chat.id, cell_news_arr)
 
-    # поиск ссылок
+    # поиск ссылок на содержимое блоков
     news_link_arr = []
-    news_link = driver.find_elements(By.XPATH, xPATH_link)
-    for j in news_link:
-        a_link = j.get_attribute('href')
-        news_link_arr.append(a_link)
+    for i in range(0, len(count_index)):
+            a = dom.xpath(xPATH_link)[i]
+            news_link_arr.append(a)
+    # print(news_link_arr)
 
-    message_text = ["%s %02s" % t for t in zip(cell_news_arr, news_link_arr)]
-    # print(message_text)
-    # for x in message_text:
-    #     bot.send_message(message.chat.id, x)
+    return news_link_arr
 
-    return message_text
 
 
 # вывод сообщения в чат и zol_ru(message)
@@ -267,14 +313,13 @@ def FindNews(mess):
     asyncio.run(asyncFindNews(mess))
 # цикл чтения словаря, для поиска ключевого слова
 async def asyncFindNews(message):
-
-    task1 = asyncio.create_task (zerno_ru())
+    task1 = asyncio.create_task(zerno_ru())
     task2 = asyncio.create_task(zol_ru())
     task3 = asyncio.create_task(agroinvestor_ru())
     task4 = asyncio.create_task(agriculture_com())
     await asyncio.wait([task1,task2,task3,task4])
 
-    message_lower_text = message.text.lower()
+    message_words = message.text.lower().split(' ')
     print('\nмеседж ловер')
     try:
         n1 = task1.result()
@@ -286,44 +331,48 @@ async def asyncFindNews(message):
     except Exception:
        print('ОШИБКА ПОИСКА')
 
-    key = f'{message_lower_text} '
-    print('\nключ найден')
     f = open('dict.txt', 'r', encoding='utf-8')
     f_lines = f.readlines()
 
-    txt_line = ""
-    for line in f_lines:
-        print(line)
-        print(key)
-        if line.find(key) != -1:
-            txt_line = line.split(' ')
-            print('слово найдено', txt_line)
-    if not txt_line:
-        return bot.send_message(message.chat.id, 'Новостей на сегодня нет')
+    WordsLineWithSyn = []
+    for Word in message_words:
+        WordWasFind = False
+        for line in f_lines:
+            # print(line)
+            if WordWasFind == False:
+                if line.find(Word + " ") != -1:
+                    WordsLineWithSyn.append(line)
+                    print('слово найдено', Word)
+                    WordWasFind = True
+        if WordWasFind == False:
+            WordsLineWithSyn.append(Word)
 
     # print('\nстроки прочитаны')
     # поиск в файле строки с нужным набором слов (выход str)
 
-    result = []
-    for str_a in a:
-        bul_p = False
-        for word in txt_line:
+    ParseResult = a
+    TempParseResult = []
+
+    # print(WordsLineWithSyn)
+    for WordLine in WordsLineWithSyn:
+        wordFinded = False
+        for word in WordLine.split(" "):
             print(word)
-            if bul_p == False:
-                if str_a.find(word + ' ') != -1:
-                    result.append(str_a)
-                    bul_p = True
+            if wordFinded == False:
+                for ParseNews in ParseResult:
+                    if ParseNews.lower().replace(':', ' ').replace('.', ' ').replace(',', ' ').replace('"', ' ')\
+                            .find(word + " ") != -1:
+                        TempParseResult.append(ParseNews)
+                        wordFinded = True
+        ParseResult = TempParseResult
+        TempParseResult = []
 
+    print(ParseResult)
 
-
-    print('\nрезультат итоговый')
-    r_set = set(result)
-
-    for elem_r_set in r_set:
+    for elem_r_set in ParseResult:
         bot.send_message(message.chat.id, elem_r_set)
 
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(r_set)
+
 
 bot.infinity_polling()
 
