@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 import requests
 from urllib.request import urlopen
 from lxml import etree
+# govno
 
 # работа браузера без интерфейса
 option = Options()
