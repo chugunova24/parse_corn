@@ -4,9 +4,9 @@ import os
 import re
 from telebot import types
 from babel.dates import format_date, format_datetime
-# from selenium import webdriver
-# from selenium.webdriver.chrome.options import Options
-# from selenium.webdriver.common.by import By
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 import pprint
 import asyncio
 from bs4 import BeautifulSoup
@@ -14,12 +14,11 @@ import requests
 from urllib.request import urlopen
 from lxml import etree
 
-# def browser_work():
-#     # работа браузера без интерфейса
-#     option = Options()
-#     option.headless = False
-#
-#     driver = webdriver.Chrome(options=option)
+# работа браузера без интерфейса
+option = Options()
+option.headless = False
+
+driver = webdriver.Chrome(options=option)
 
 
 TOKEN = '2016761889:AAF0Baan6ouhKLwClb0O4utKv47wnclaZEA'
@@ -191,8 +190,9 @@ async def zerno_ru():
         a = dom.xpath(xPATH)[i].text
         cell_news_arr.append(a)
     print(cell_news_arr)
-    for x in cell_news_arr:
-        bot.send_message(message.chat.id, x)
+
+    # for x in cell_news_arr:
+    #     bot.send_message(918497328, x)
     # bot.send_message(message.chat.id, cell_news_arr)
 
     # поиск ссылок на содержимое блоков
@@ -202,7 +202,7 @@ async def zerno_ru():
             news_link_arr.append(a)
     # print(news_link_arr)
 
-    return news_link_arr
+    return cell_news_arr
 
 
 
@@ -314,25 +314,28 @@ def FindNews(mess):
 # цикл чтения словаря, для поиска ключевого слова
 async def asyncFindNews(message):
     task1 = asyncio.create_task(zerno_ru())
-    task2 = asyncio.create_task(zol_ru())
-    task3 = asyncio.create_task(agroinvestor_ru())
-    task4 = asyncio.create_task(agriculture_com())
-    await asyncio.wait([task1,task2,task3,task4])
+    # task2 = asyncio.create_task(zol_ru())
+    # task3 = asyncio.create_task(agroinvestor_ru())
+    # task4 = asyncio.create_task(agriculture_com())
+    # await asyncio.wait([task1,task2,task3,task4])
+    await asyncio.wait([task1])
 
     message_words = message.text.lower().split(' ')
     print('\nмеседж ловер')
     try:
         n1 = task1.result()
-        n2 = task2.result()
-        n3 = task3.result()
-        n4 = task4.result()
-        a = n1 + n2 + n3 + n4
+        # n2 = task2.result()
+        # n3 = task3.result()
+        # n4 = task4.result()
+        # a = n1 + n2 + n3 + n4
+        a = n1
         # print('ПОЛНЫЙ СПИСОК', a)
     except Exception:
        print('ОШИБКА ПОИСКА')
 
     f = open('dict.txt', 'r', encoding='utf-8')
     f_lines = f.readlines()
+
 
     WordsLineWithSyn = []
     for Word in message_words:
@@ -353,11 +356,11 @@ async def asyncFindNews(message):
     ParseResult = a
     TempParseResult = []
 
-    # print(WordsLineWithSyn)
+    print("ParseResult")
+    print(ParseResult)
     for WordLine in WordsLineWithSyn:
         wordFinded = False
         for word in WordLine.split(" "):
-            print(word)
             if wordFinded == False:
                 for ParseNews in ParseResult:
                     if ParseNews.lower().replace(':', ' ').replace('.', ' ').replace(',', ' ').replace('"', ' ')\
