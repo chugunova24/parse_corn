@@ -9,11 +9,7 @@ from bs4 import BeautifulSoup
 import requests
 from urllib.request import urlopen
 from lxml import etree
-<<<<<<< HEAD
 import re
-=======
-# govno
->>>>>>> origin/master
 
 # # работа браузера без интерфейса
 # option = Options()
@@ -442,17 +438,15 @@ async def asyncFindNews(message):
     # print("ParseResult")
     # print(ParseResult)
     for WordLine in WordsLineWithSyn:
-        wordFinded = False
         for word in WordLine.split(" "):
-            if wordFinded == False:
                 for ParseNews in ParseResult:
                     if ParseNews.lower().replace(':', ' ').replace('.', ' ').replace(',', ' ').replace('"', ' ').replace('/', ' ')\
                             .find(word + " ") != -1:
                         TempParseResult.append(ParseNews)
-                        wordFinded = True
         ParseResult = TempParseResult
         TempParseResult = []
 
+    ParseResult = set(ParseResult)
     # print(ParseResult)
 
     for elem_r_set in ParseResult:
