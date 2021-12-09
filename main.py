@@ -10,7 +10,7 @@ import requests
 from urllib.request import urlopen
 from lxml import etree
 import re
-from connect import forbes_ru
+from connect import GetParseResult
 
 # # работа браузера без интерфейса
 # option = Options()
@@ -493,29 +493,14 @@ def FindNews(mess):
     asyncio.run(asyncFindNews(mess))
 # цикл чтения словаря, для поиска ключевого слова
 async def asyncFindNews(message):
-    task1 = asyncio.create_task(zerno_ru())
-    task2 = asyncio.create_task(zol_ru())
-    task3 = asyncio.create_task(agroinvestor_ru())
-    task4 = asyncio.create_task(agriculture_com())
-    await asyncio.wait([task1,task2,task3,task4])
-    # await asyncio.wait([task1])
 
     message_words = message.text.lower().split(' ')
     print('\nмеседж ловер')
-    try:
-        n1 = task1.result()
-        n2 = task2.result()
-        n3 = task3.result()
-        n4 = task4.result()
-        a = n1 + n2 + n3 + n4
-        # a = n1 + n2
-        print('ПОЛНЫЙ СПИСОК', a)
-    except Exception:
-       print('ОШИБКА ПОИСКА')
 
     f = open('dict.txt', 'r', encoding='utf-8')
     f_lines = f.readlines()
 
+    a = GetParseResult()
 
     WordsLineWithSyn = []
     for Word in message_words:
