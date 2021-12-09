@@ -10,6 +10,7 @@ import requests
 from urllib.request import urlopen
 from lxml import etree
 import re
+from connect import forbes_ru
 
 # # работа браузера без интерфейса
 # option = Options()
@@ -386,6 +387,106 @@ async def agriculture_com():
     #     bot.send_message(message.chat.id, x, disable_web_page_preview=True, parse_mode='html')
 
     return message_text
+
+
+def apk_inform_com():
+    URL = 'https://www.apk-inform.com/ru/news/russia'
+
+    xPATH = '''//*[contains(text(),'Сегодня')]/../../../../..//a[@class='text']'''
+    xPATH_link = '''//*[contains(text(),'Сегодня')]/../../../../..//a[@class='text']/@href'''
+
+    webpage = requests.get(URL)
+    soup = BeautifulSoup(webpage.content, "html.parser")
+    dom = etree.HTML(str(soup))
+    count_index = dom.xpath(xPATH)
+    # count_index = len(count_index)
+
+    # поиск содержимого блоков НА 1 СТРАНИЦЕ
+    cell_news_arr = []
+    for i in range(0, len(count_index)):
+        a = dom.xpath(xPATH)[i].text
+        cell_news_arr.append(a)
+    # print(cell_news_arr)
+
+    # поиск ссылок на содержимое блоков
+    news_link_arr = []
+    for i in range(0, len(count_index)):
+        a = dom.xpath(xPATH_link)[i]
+        first_part_link = 'https://www.apk-inform.com'
+        a = first_part_link + a
+        news_link_arr.append(a)
+    # print(news_link_arr)
+
+    # преобразование ссылок в нужный вид
+    link_mass = []
+    for link in news_link_arr:
+        link1 = '<a href="%s">apk-inform.com</a>' % link
+        link_mass.append(link1)
+
+    message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    # print(message_text)
+
+    # for x in message_text:
+    #     bot.send_message(message.chat.id, x, disable_web_page_preview=True, parse_mode='html')
+
+
+
+
+# НЕ ДОДЕЛАН!!!!!!!!!!!!!
+def ria_ru():
+    URL = '''https://ria.ru/search/?query='''
+
+    xPATH = '''//*[contains(text(),'Сегодня')]/../../../../..//a[@class='text']'''
+    xPATH_link = '''//*[contains(text(),'Сегодня')]/../../../../..//a[@class='text']/@href'''
+
+    webpage = requests.get(URL)
+    soup = BeautifulSoup(webpage.content, "html.parser")
+    dom = etree.HTML(str(soup))
+    count_index = dom.xpath(xPATH)
+    # count_index = len(count_index)
+
+    # поиск содержимого блоков НА 1 СТРАНИЦЕ
+    cell_news_arr = []
+    for i in range(0, len(count_index)):
+        a = dom.xpath(xPATH)[i].text
+        cell_news_arr.append(a)
+    # print(cell_news_arr)
+
+
+
+
+
+# def forbes_ru():
+#     URL = '''https://www.forbes.ru/'''
+#
+#     xPATH ='''//ul[@data-interval="08.12.2021"]/li/a/div[@class="Tt2J2"]'''
+#     xPATH_link = '''//*[contains(text(),'Сегодня')]/../../../../..//a[@class='text']/@href'''
+#
+#
+#     webpage = requests.get(URL, stream=True, timeout=(20, 100))
+#     soup = BeautifulSoup(webpage.content, "html.parser")
+#     dom = etree.HTML(str(soup))
+#     count_index = dom.xpath(xPATH)
+#     # count_index = len(count_index)
+#     print(soup)
+#
+#     # поиск содержимого блоков НА 1 СТРАНИЦЕ
+#     cell_news_arr = []
+#     for i in range(0, len(count_index)):
+#         a = dom.xpath(xPATH)[i].text
+#         cell_news_arr.append(a)
+#     print(cell_news_arr)
+#
+#     # # поиск ссылок на содержимое блоков
+#     # news_link_arr = []
+#     # for i in range(0, len(count_index)):
+#     #     a = dom.xpath(xPATH_link)[i]
+#     #     first_part_link = 'https://www.apk-inform.com'
+#     #     a = first_part_link + a
+#     #     news_link_arr.append(a)
+#     # # print(news_link_arr)
+#
+
 
 # -------------- СЛОВАРЬ -----------------
 def FindNews(mess):
