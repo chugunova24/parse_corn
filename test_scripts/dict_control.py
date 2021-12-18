@@ -2,7 +2,7 @@ import main
 
 # добавление ключевого слова
 def dict_new_word(message):
-   f = open('dict.txt', 'a', encoding='utf-8')
+   f = open('../dict.txt', 'a', encoding='utf-8')
    word = 'бляьб1111'
    f.write('\n')
    f.write(word + ' ')
@@ -11,7 +11,7 @@ def dict_new_word(message):
 
 # добавление синонимов к ключевому слову
 def synonym(message):
-   f = open('dict.txt', 'a', encoding='utf-8')
+   f = open('../dict.txt', 'a', encoding='utf-8')
    word = ['сука', 'ааа', 'нееееет']
    for elem in word:
       f.write(elem + ' ')
@@ -19,7 +19,7 @@ def synonym(message):
 
 # чтение последней строки, чтобы показать результат запроса
 def print_last_line(message):
-   f = open('dict.txt', 'r', encoding='utf-8')
+   f = open('../dict.txt', 'r', encoding='utf-8')
    last_line = f.readlines()[-1]
    f.close
    return last_line
@@ -42,7 +42,7 @@ def read_txt(message):
    def result_search_txt():
       key = '%s ' % message_lower_text
 
-      f = open('dict.txt', 'r', encoding='utf-8')
+      f = open('../dict.txt', 'r', encoding='utf-8')
       f_lines = f.readlines()
 
       # поиск в файле строки с нужным набором слов (выход list)
