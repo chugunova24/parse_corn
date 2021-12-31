@@ -25,9 +25,9 @@ start_time = time.time()
 option = Options()
 option.headless = False
 
-# chrome_options = webdriver.ChromeOptions()
-PROXY = "103.124.2.229:3128"
-option.add_argument('--proxy-server=%s' % PROXY)
+# # chrome_options = webdriver.ChromeOptions()
+# PROXY = "103.124.2.229:3128"
+# option.add_argument('--proxy-server=%s' % PROXY)
 
 driver = webdriver.Chrome(options=option)
 driver.set_window_size(1920, 1080)
@@ -36,78 +36,62 @@ x = datetime.datetime.today()
 x2 = datetime.datetime.date(x)
 date_today = format_date(x2, locale='de_DE')
 
-def reuters_com():
-    URL = '''https://www.reuters.com/markets/commodities/'''
+def nasdaq_com():
+    URL = '''https://www.nasdaq.com/news-and-insights/topic/markets/commodities'''
+    xPATH = '''//a[@class="content-feed__card-title-link"]'''
+    xPATH_link = '''//a[@class="content-feed__card-title-link"]/@href'''
+    xPATH_element = '''/html/body/div[1]/div/main/div[2]/div[2]/div/div[1]/section/div[1]/div/div[2]/div/div[1]/div'''
 
-    xPATH1 = '''//time[contains(text(), "MSK")]/../../div[2]/a'''
-    xPATH_link1 = '''//time[contains(text(), "MSK")]/../../div[2]/a'''
+    #  -------------- BS4 ----------------
 
-    xPATH2 = '''//time[contains(text(), "MSK")]/../span[2]'''
-    xPATH_link2 = '''//time[contains(text(), "MSK")]/../../a'''
-    xPATH_button = '''//div[@class="Topic__loadmore___3juLCQ"]/button/div/span'''
+    # webpage = requests.get(URL, timeout=10)
+    # print('страница получена')
+    # soup = BeautifulSoup(webpage.content, "html.parser")
+    # print('страница получена2')
+    # dom = etree.HTML(str(soup))
+    # print('дом')
+    # count_index = dom.xpath(xPATH)
+    # print('дом поиск икспаф')
+    #
+    # # поиск содержимого блоков НА 1 СТРАНИЦЕ
+    # cell_news_arr = []
+    # for i in range(0, len(count_index)):
+    #     a = dom.xpath(xPATH)[i].text
+    #     print('получить текст из элементов')
+    #     cell_news_arr.append(a)
+    # print(cell_news_arr)
+    #
+    # # # поиск ссылок на содержимое блоков
+    # # news_link_arr = []
+    # # for i in range(0, len(count_index)):
+    # #     a = dom.xpath(xPATH_link)[i]
+    # #     news_link_arr.append(a)
 
-    driver.get(URL)
+
     try:
-        time.sleep(2)
-        driver.find_element(By.XPATH, xPATH_button).click()
-        time.sleep(2)
-        driver.find_element(By.XPATH, xPATH_button).click()
-        time.sleep(1)
-        driver.find_element(By.XPATH, xPATH_button).click()
-        time.sleep(2)
-        driver.find_element(By.XPATH, xPATH_button).click()
-    except Exception as e:
-        print(e)
-    # agent = driver.execute_script("return navigator.userAgent")
-    # print(agent)
+        driver.get(URL)
+        # driver.execute_script("window.stop();")
+        element = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, xPATH_element)))
+        print('window STOP')
+        # ищет новости на сегодня
+        cell_news_arr = []
+        cell_news = driver.find_elements(By.XPATH, xPATH)
+        for i in cell_news:
+            cell_news_arr.append(i.text)
+        print(cell_news_arr)
 
-    # ищет новости на сегодня
-    cell_news_arr = []
-    cell_news = driver.find_elements(By.XPATH, xPATH1)
-    for i in cell_news:
-        cell_news_arr.append(i.text)
+    finally:
+        driver.quit()
+
+    # # ищет новости на сегодня
+    # cell_news_arr = []
+    # cell_news = driver.find_elements(By.XPATH, xPATH)
+    # for i in cell_news:
+    #     cell_news_arr.append(i.text)
     # print(cell_news_arr)
 
-    cell_news = driver.find_elements(By.XPATH, xPATH2)
-    for i in cell_news:
-        cell_news_arr.append(i.text)
-    # print(cell_news_arr)
-    print(len(cell_news_arr))
 
-    # ссылки
-    news_link_arr = []
-    link_news = driver.find_elements(By.XPATH, xPATH_link1)
-    for i in link_news:
-        a_link = i.get_attribute('href')
-        news_link_arr.append(a_link)
-    # pprint(news_link_arr)
-    # print()
-
-    link_news = driver.find_elements(By.XPATH, xPATH_link2)
-    for i in link_news:
-        a_link = i.get_attribute('href')
-        news_link_arr.append(a_link)
-    # pprint.pprint(news_link_arr)
-    print(len(news_link_arr))
-
-    # преобразование ссылок в нужный вид
-    link_mass = []
-    for link in news_link_arr:
-        link1 = '<a href="%s">reuters.com</a>' % link
-        link_mass.append(link1)
-
-    message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
-    pprint(message_text)
-
-
-    driver.quit()
-    # return message_text
-
-
-
-reuters_com()
-
-
-
+nasdaq_com()
 
 print("--- %s seconds ---" % (time.time() - start_time))

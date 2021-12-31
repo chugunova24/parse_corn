@@ -25,6 +25,8 @@ option.headless = True
 # chrome_options = webdriver.ChromeOptions()
 # PROXY = "103.124.2.229:3128"
 # chrome_options.add_argument('--proxy-server=%s' % PROXY)
+PROXY = "103.124.2.229:3128"
+option.add_argument('--proxy-server=%s' % PROXY)
 
 driver = webdriver.Chrome(options=option)
 driver.set_window_size(1920, 1080)
@@ -361,6 +363,277 @@ async def apk_inform_com():
     return message_text
 
 
+async def oilworld_ru():
+    URL = '''https://www.oilworld.ru/news/all'''
+
+    # date_today = '12.07.2021'
+    date_today = format_date(x2, "yyy", locale='ru')
+    next_year = int(date_today) + 1
+    # //div[contains(text(), ":")][not(contains(text(), "2021"))]
+    # //span[contains(text(), ":")][not(contains(text(), "2021"))][not(contains(text(), "2022"))]/../a
+
+    xPATH = '''//span[contains(text(), ":")][not(contains(text(), "%s"))][not(contains(text(), "%s"))]/../a/@title''' \
+            % (date_today, str(next_year))
+    xPATH_link = '''//span[contains(text(), ":")][not(contains(text(), "%s"))][not(contains(text(), "%s"))]/../a/@href''' \
+                 % (date_today, str(next_year))
+
+    webpage = requests.get(URL)
+    soup = BeautifulSoup(webpage.content, "html.parser")
+    dom = etree.HTML(str(soup))
+    count_index = dom.xpath(xPATH)
+    # print(soup)
+
+    # поиск содержимого блоков НА 1 СТРАНИЦЕ
+    cell_news_arr = []
+    for i in range(0, len(count_index)):
+        a = dom.xpath(xPATH)[i]
+        cell_news_arr.append(a)
+    # print(cell_news_arr)
+
+    # поиск ссылок на содержимое блоков НА 1 СТРАНИЦЕ
+    news_link_arr = []
+    for i in range(0, len(count_index)):
+        a = dom.xpath(xPATH_link)[i]
+        news_link_arr.append(a)
+
+    # print(news_link_arr)
+
+    def search_through_pages():
+        for i in range(2, 4):
+            URL = '''https://www.oilworld.ru/news/all?page=%s''' % str(i)
+            # print(URL)
+
+            webpage = requests.get(URL)
+            soup = BeautifulSoup(webpage.content, "html.parser")
+            dom = etree.HTML(str(soup))
+            count_index = dom.xpath(xPATH)
+
+            for i in range(0, len(count_index)):
+                a = dom.xpath(xPATH)[i]
+                cell_news_arr.append(a)
+
+            for i in range(0, len(count_index)):
+                a = dom.xpath(xPATH_link)[i]
+                news_link_arr.append(a)
+    search_through_pages()
+    # print(cell_news_arr)
+    # print(news_link_arr)
+
+    # преобразование ссылок
+    first_part_link = 'https://www.oilworld.ru'
+    link_news = []
+    for i in news_link_arr:
+        i = first_part_link + i
+        link_news.append(i)
+    # print(link_news)
+
+    # преобразование ссылок в нужный вид
+    link_mass = []
+    for link in link_news:
+        link = re.sub("^\s+|\n|\r|\xa0|\s+$", '', link)
+        link1 = '<a href="%s">oilworld.ru</a>' % link
+
+        link_mass.append(link1)
+
+    message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    # print(message_text)
+
+    return message_text
+
+
+async def interfax_ru():
+
+    year_today = format_date(x2, "yyy", locale='ru')
+    mounth_today = format_date(x2, "MM", locale='ru')
+    day_today = format_date(x2, "dd", locale='ru')
+    URL = '''https://www.interfax.ru/news/%s/%s/%s''' % (year_today,mounth_today,day_today)
+    # print(URL)
+
+    # //div[contains(text(), ":")][not(contains(text(), "2021"))]
+    # //span[contains(text(), ":")][not(contains(text(), "2021"))][not(contains(text(), "2022"))]/../a
+
+    xPATH = '''//div[@data-id]/a/h3'''
+    xPATH_link = '''//div[@data-id]/a/@href'''
+
+    webpage = requests.get(URL)
+    soup = BeautifulSoup(webpage.content, "html.parser")
+    dom = etree.HTML(str(soup))
+    count_index = dom.xpath(xPATH)
+    # print(soup)
+
+    # поиск содержимого блоков НА 1 СТРАНИЦЕ
+    cell_news_arr = []
+    for i in range(0, len(count_index)):
+        a = dom.xpath(xPATH)[i].text
+        cell_news_arr.append(a)
+    # print(cell_news_arr)
+
+    # поиск ссылок на содержимое блоков НА 1 СТРАНИЦЕ
+    news_link_arr = []
+    for i in range(0, len(count_index)):
+        a = dom.xpath(xPATH_link)[i]
+        news_link_arr.append(a)
+    # print(news_link_arr)
+
+    def search_through_pages():
+        for i in range(2, 6):
+            URL = '''https://www.interfax.ru/news/%s/%s/%s/all/page_%s''' % (year_today,mounth_today,day_today, str(i))
+            print(URL)
+
+            webpage = requests.get(URL)
+            soup = BeautifulSoup(webpage.content, "html.parser")
+            dom = etree.HTML(str(soup))
+            count_index = dom.xpath(xPATH)
+
+            for i in range(0, len(count_index)):
+                a = dom.xpath(xPATH)[i].text
+                cell_news_arr.append(a)
+
+            for i in range(0, len(count_index)):
+                a = dom.xpath(xPATH_link)[i]
+                news_link_arr.append(a)
+    search_through_pages()
+    # print(cell_news_arr)
+    # print(news_link_arr)
+
+    # преобразование ссылок
+    first_part_link = 'https://www.interfax.ru'
+    link_news = []
+    for i in news_link_arr:
+        if i[0] == "/":
+            i = first_part_link + i
+            link_news.append(i)
+        else:
+            link_news.append(i)
+    # print(link_news)
+
+    # преобразование ссылок в нужный вид
+    link_mass = []
+    for link in link_news:
+        link = re.sub("^\s+|\n|\r|\xa0|\s+$", '', link)
+        link1 = '<a href="%s">interfax.ru</a>' % link
+
+        link_mass.append(link1)
+
+    message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    # print(message_text)
+
+    return message_text
+
+async def lenta_ru_politic():
+    # --ЕСТЬ, НО НЕТ--
+    # '''//div[contains(text(), ":")][not(contains(text(), ","))]'''
+
+    mounth_today = date_today = format_date(x2, "MMMM", locale='ru_RU')
+    # print(mounth_today)
+    URL = ['''https://lenta.ru/rubrics/world/politic/1/''', '''https://lenta.ru/rubrics/world/politic/2/''',
+           '''https://lenta.ru/rubrics/world/politic/3/''', '''https://lenta.ru/rubrics/world/politic/4/''',
+           '''https://lenta.ru/rubrics/world/politic/5/''', '''https://lenta.ru/rubrics/world/politic/6/''',
+           '''https://lenta.ru/rubrics/world/politic/7/''', '''https://lenta.ru/rubrics/world/politic/8/''']
+
+    news_link_arr = []
+    cell_news_arr = []
+    for i in URL:
+        # print(i)
+        xPATH = '''//time[contains(text(), ":")][not(contains(text(), "%s"))]/../../h3''' % mounth_today
+        xPATH_link = '''//time[contains(text(), ":")][not(contains(text(), "%s"))]/../../@href''' % mounth_today
+
+        webpage = requests.get(i)
+        soup = BeautifulSoup(webpage.content, "html.parser")
+        dom = etree.HTML(str(soup))
+        count_index = dom.xpath(xPATH)
+
+        for i in range(0, len(count_index)):
+            a = dom.xpath(xPATH)[i].text
+            cell_news_arr.append(a)
+
+        for i in range(0, len(count_index)):
+            a = dom.xpath(xPATH_link)[i]
+            news_link_arr.append(a)
+    # print(cell_news_arr)
+    # print(news_link_arr)
+
+    # преобразование ссылок
+    first_part_link = 'https://lenta.ru'
+    link_news = []
+    for i in news_link_arr:
+        i = first_part_link + i
+        link_news.append(i)
+    # print(link_news)
+
+    # преобразование ссылок в нужный вид
+    link_mass = []
+    for link in link_news:
+        link = re.sub("^\s+|\n|\r|\xa0|\s+$", '', link)
+        link1 = '<a href="%s">lenta.ru</a>' % link
+
+        link_mass.append(link1)
+
+    message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    # print(message_text)
+
+    return message_text
+
+
+async def lenta_ru_economics():
+    # --ЕСТЬ, НО НЕТ--
+    # '''//div[contains(text(), ":")][not(contains(text(), ","))]'''
+
+    mounth_today = date_today = format_date(x2, "MMMM", locale='ru_RU')
+    # print(mounth_today)
+
+    URL = '''https://lenta.ru/rubrics/economics/'''
+
+    news_link_arr = []
+    cell_news_arr = []
+
+    # print(i)
+    xPATH = '''//time[contains(text(), ":")][not(contains(text(), "%s"))]/../../../a/div/span''' % mounth_today
+    xPATH_link = '''//time[contains(text(), ":")][not(contains(text(), "%s"))]/../../../a/@href''' % mounth_today
+
+    webpage = requests.get(URL)
+    soup = BeautifulSoup(webpage.content, "html.parser")
+    dom = etree.HTML(str(soup))
+    count_index = dom.xpath(xPATH)
+
+    for i in range(0, len(count_index)):
+        a = dom.xpath(xPATH)[i].text
+        cell_news_arr.append(a)
+
+    for i in range(0, len(count_index)):
+        a = dom.xpath(xPATH_link)[i]
+        news_link_arr.append(a)
+    # print(cell_news_arr)
+    # print(news_link_arr)
+
+    # преобразование ссылок
+    first_part_link = 'https://lenta.ru'
+    link_news = []
+    for i in news_link_arr:
+        if i[0] == "/":
+            i = first_part_link + i
+            link_news.append(i)
+        else:
+            link_news.append(i)
+    # print(link_news)
+
+    # преобразование ссылок в нужный вид
+    link_mass = []
+    for link in link_news:
+        link = re.sub("^\s+|\n|\r|\xa0|\s+$", '', link)
+        link1 = '<a href="%s">lenta.ru</a>' % link
+        link_mass.append(link1)
+
+    message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    # print(message_text)
+
+    return message_text
+
+
+
+
+
+
 
 #--------------------------- SELENIUM ------------------------------------
 async def forbes_ru():
@@ -666,7 +939,7 @@ async def ria_ru_2():
 
     return message_text
 
-def ria_ru_3():
+async def ria_ru_3():
     URL = '''https://ria.ru/economy/'''
     # --ЕСТЬ, НО НЕТ--
     # '''//div[contains(text(), ":")][not(contains(text(), ","))]'''
@@ -713,7 +986,7 @@ def ria_ru_3():
     return message_text
 
 
-def tass_ru_1():
+async def tass_ru_1():
     URL_LINKS = ['''https://tass.ru/msp''', '''https://tass.ru/ekonomika''', '''https://tass.ru/politika''']
     # --ЕСТЬ, НО НЕТ--
     # '''//div[contains(text(), ":")][not(contains(text(), ","))]'''
@@ -761,7 +1034,7 @@ def tass_ru_1():
 
     return all_info
 
-def tass_ru_2():
+async def tass_ru_2():
     URL = '''https://tass.ru/obschestvo'''
     # --ЕСТЬ, НО НЕТ--
     # '''//div[contains(text(), ":")][not(contains(text(), ","))]'''
@@ -813,6 +1086,348 @@ def tass_ru_2():
 
     return message_text
 
+async def reuters_com():
+    URL = '''https://www.reuters.com/markets/commodities/'''
+
+    xPATH1 = '''//time[contains(text(), "MSK")]/../../div[2]/a'''
+    xPATH_link1 = '''//time[contains(text(), "MSK")]/../../div[2]/a'''
+
+    xPATH2 = '''//time[contains(text(), "MSK")]/../span[2]'''
+    xPATH_link2 = '''//time[contains(text(), "MSK")]/../../a'''
+    xPATH_button = '''//div[@class="Topic__loadmore___3juLCQ"]/button/div/span'''
+
+    driver.get(URL)
+    try:
+        time.sleep(2)
+        driver.find_element(By.XPATH, xPATH_button).click()
+        time.sleep(2)
+        driver.find_element(By.XPATH, xPATH_button).click()
+        time.sleep(1)
+        driver.find_element(By.XPATH, xPATH_button).click()
+        time.sleep(2)
+        driver.find_element(By.XPATH, xPATH_button).click()
+    except Exception as e:
+        print(e)
+    # agent = driver.execute_script("return navigator.userAgent")
+    # print(agent)
+
+    # ищет новости на сегодня
+    cell_news_arr = []
+    cell_news = driver.find_elements(By.XPATH, xPATH1)
+    for i in cell_news:
+        cell_news_arr.append(i.text)
+    # print(cell_news_arr)
+
+    cell_news = driver.find_elements(By.XPATH, xPATH2)
+    for i in cell_news:
+        cell_news_arr.append(i.text)
+    # print(cell_news_arr)
+    # print(len(cell_news_arr))
+
+    # ссылки
+    news_link_arr = []
+    link_news = driver.find_elements(By.XPATH, xPATH_link1)
+    for i in link_news:
+        a_link = i.get_attribute('href')
+        news_link_arr.append(a_link)
+    # pprint(news_link_arr)
+    # print()
+
+    link_news = driver.find_elements(By.XPATH, xPATH_link2)
+    for i in link_news:
+        a_link = i.get_attribute('href')
+        news_link_arr.append(a_link)
+    # pprint.pprint(news_link_arr)
+    # print(len(news_link_arr))
+
+    # преобразование ссылок в нужный вид
+    link_mass = []
+    for link in news_link_arr:
+        link1 = '<a href="%s">reuters.com</a>' % link
+        link_mass.append(link1)
+
+    message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    # print(message_text)
+
+    return message_text
+
+def kommersant_ru_economics():
+    year_today = format_date(x2, "yyy", locale='ru')
+    mounth_today = format_date(x2, "MM", locale='ru')
+    day_today = format_date(x2, "dd", locale='ru')
+                # ДАТА!!!
+    URL = 'https://www.kommersant.ru/archive/rubric/3/day/%s-%s-%s' % (year_today, mounth_today, day_today)
+    # URL = '''https://www.kommersant.ru/archive/rubric/3/day/2018-06-14?page=2'''  # тест для кнопки "Показать ещё"
+    # print(URL)
+    xPATH = '''//a[@class="uho__link uho__link--overlay"]'''
+    xPATH_link = '''//a[@class="uho__link uho__link--overlay"]'''
+    xPATH_button = '''//*[contains(text(), "Показать еще")]'''
+
+    driver.get(URL)
+
+    # Кнопка "Показать ещё"
+    try:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.find_element(By.XPATH, xPATH_button).click()
+        time.sleep(2)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.find_element(By.XPATH, xPATH_button).click()
+        time.sleep(2)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.find_element(By.XPATH, xPATH_button).click()
+    except Exception as e:
+        print(e)
+
+    # ищет новости на сегодня
+    cell_news_arr = []
+    cell_news = driver.find_elements(By.XPATH, xPATH)
+    for i in cell_news:
+        cell_news_arr.append(i.text)
+    # print(cell_news_arr)
+
+    # поиск ссылок
+    news_link_arr = []
+    news_link = driver.find_elements(By.XPATH, xPATH_link)
+    for j in news_link:
+        a_link = j.get_attribute('href')
+        news_link_arr.append(a_link)
+    # print(news_link_arr)
+
+    # преобразование ссылок в нужный вид
+    link_mass = []
+    for link in news_link_arr:
+        link1 = '<a href="%s">kommersant.ru</a>' % link
+        link_mass.append(link1)
+
+    message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    # print(message_text)
+    return message_text
+
+
+def kommersant_ru_politics():
+    year_today = format_date(x2, "yyy", locale='ru')
+    mounth_today = format_date(x2, "MM", locale='ru')
+    day_today = format_date(x2, "dd", locale='ru')
+                # ДАТА!!!
+    URL = 'https://www.kommersant.ru/archive/rubric/2/day/%s-%s-%s' % (year_today, mounth_today, day_today)
+    # URL = '''https://www.kommersant.ru/archive/rubric/3/day/2018-06-14?page=2'''  # тест для кнопки "Показать ещё"
+    # print(URL)
+    xPATH = '''//a[@class="uho__link uho__link--overlay"]'''
+    xPATH_link = '''//a[@class="uho__link uho__link--overlay"]'''
+    xPATH_button = '''//*[contains(text(), "Показать еще")]'''
+
+    driver.get(URL)
+
+    # Кнопка "Показать ещё"
+    try:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.find_element(By.XPATH, xPATH_button).click()
+        time.sleep(2)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.find_element(By.XPATH, xPATH_button).click()
+        time.sleep(2)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.find_element(By.XPATH, xPATH_button).click()
+    except Exception as e:
+        print(e)
+
+
+    # ищет новости на сегодня
+    cell_news_arr = []
+    cell_news = driver.find_elements(By.XPATH, xPATH)
+    for i in cell_news:
+        cell_news_arr.append(i.text)
+    # print(cell_news_arr)
+
+    # поиск ссылок
+    news_link_arr = []
+    news_link = driver.find_elements(By.XPATH, xPATH_link)
+    for j in news_link:
+        a_link = j.get_attribute('href')
+        news_link_arr.append(a_link)
+    # print(news_link_arr)
+
+    # преобразование ссылок в нужный вид
+    link_mass = []
+    for link in news_link_arr:
+        link1 = '<a href="%s">kommersant.ru</a>' % link
+        link_mass.append(link1)
+
+    message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    # print(message_text)
+    return message_text
+
+def kommersant_ru_business():
+    year_today = format_date(x2, "yyy", locale='ru')
+    mounth_today = format_date(x2, "MM", locale='ru')
+    day_today = format_date(x2, "dd", locale='ru')
+                # ДАТА!!!
+    URL = 'https://www.kommersant.ru/archive/rubric/4/day/%s-%s-%s' % (year_today, mounth_today, day_today)
+    # URL = '''https://www.kommersant.ru/archive/rubric/3/day/2018-06-14?page=2'''  # тест для кнопки "Показать ещё"
+    # print(URL)
+    xPATH = '''//a[@class="uho__link uho__link--overlay"]'''
+    xPATH_link = '''//a[@class="uho__link uho__link--overlay"]'''
+    xPATH_button = '''//*[contains(text(), "Показать еще")]'''
+
+    driver.get(URL)
+
+    # Кнопка "Показать ещё"
+    try:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.find_element(By.XPATH, xPATH_button).click()
+        time.sleep(2)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.find_element(By.XPATH, xPATH_button).click()
+        time.sleep(2)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.find_element(By.XPATH, xPATH_button).click()
+    except Exception as e:
+        print(e)
+
+
+    # ищет новости на сегодня
+    cell_news_arr = []
+    cell_news = driver.find_elements(By.XPATH, xPATH)
+    for i in cell_news:
+        cell_news_arr.append(i.text)
+    # print(cell_news_arr)
+
+    # поиск ссылок
+    news_link_arr = []
+    news_link = driver.find_elements(By.XPATH, xPATH_link)
+    for j in news_link:
+        a_link = j.get_attribute('href')
+        news_link_arr.append(a_link)
+    # print(news_link_arr)
+
+    # преобразование ссылок в нужный вид
+    link_mass = []
+    for link in news_link_arr:
+        link1 = '<a href="%s">kommersant.ru</a>' % link
+        link_mass.append(link1)
+
+    message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    # print(message_text)
+    return message_text
+
+def kommersant_ru_consumer_market():
+    year_today = format_date(x2, "yyy", locale='ru')
+    mounth_today = format_date(x2, "MM", locale='ru')
+    day_today = format_date(x2, "dd", locale='ru')
+                # ДАТА!!!
+    URL = 'https://www.kommersant.ru/archive/rubric/41/day/%s-%s-%s' % (year_today, mounth_today, day_today)
+    # URL = '''https://www.kommersant.ru/archive/rubric/3/day/2018-06-14?page=2'''  # тест для кнопки "Показать ещё"
+    # print(URL)
+    xPATH = '''//a[@class="uho__link uho__link--overlay"]'''
+    xPATH_link = '''//a[@class="uho__link uho__link--overlay"]'''
+    xPATH_button = '''//*[contains(text(), "Показать еще")]'''
+
+    driver.get(URL)
+
+    # Кнопка "Показать ещё"
+    try:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.find_element(By.XPATH, xPATH_button).click()
+        time.sleep(2)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.find_element(By.XPATH, xPATH_button).click()
+        time.sleep(2)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.find_element(By.XPATH, xPATH_button).click()
+    except Exception as e:
+        print(e)
+
+    # ищет новости на сегодня
+    cell_news_arr = []
+    cell_news = driver.find_elements(By.XPATH, xPATH)
+    for i in cell_news:
+        cell_news_arr.append(i.text)
+    # print(cell_news_arr)
+
+    # поиск ссылок
+    news_link_arr = []
+    news_link = driver.find_elements(By.XPATH, xPATH_link)
+    for j in news_link:
+        a_link = j.get_attribute('href')
+        news_link_arr.append(a_link)
+    # print(news_link_arr)
+
+    # преобразование ссылок в нужный вид
+    link_mass = []
+    for link in news_link_arr:
+        link1 = '<a href="%s">kommersant.ru</a>' % link
+        link_mass.append(link1)
+
+    message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    # print(message_text)
+    return message_text
+
+def kommersant_ru_finances():
+    year_today = format_date(x2, "yyy", locale='ru')
+    mounth_today = format_date(x2, "MM", locale='ru')
+    day_today = format_date(x2, "dd", locale='ru')
+                # ДАТА!!!
+    URL = 'https://www.kommersant.ru/archive/rubric/40/day/%s-%s-%s' % (year_today, mounth_today, day_today)
+    # URL = '''https://www.kommersant.ru/archive/rubric/3/day/2018-06-14?page=2'''  # тест для кнопки "Показать ещё"
+    # print(URL)
+    xPATH = '''//a[@class="uho__link uho__link--overlay"]'''
+    xPATH_link = '''//a[@class="uho__link uho__link--overlay"]'''
+    xPATH_button = '''//*[contains(text(), "Показать еще")]'''
+
+    driver.get(URL)
+
+    # Кнопка "Показать ещё"
+    try:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.find_element(By.XPATH, xPATH_button).click()
+        time.sleep(2)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.find_element(By.XPATH, xPATH_button).click()
+        time.sleep(2)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.find_element(By.XPATH, xPATH_button).click()
+    except Exception as e:
+        print(e)
+
+    # ищет новости на сегодня
+    cell_news_arr = []
+    cell_news = driver.find_elements(By.XPATH, xPATH)
+    for i in cell_news:
+        cell_news_arr.append(i.text)
+    # print(cell_news_arr)
+
+    # поиск ссылок
+    news_link_arr = []
+    news_link = driver.find_elements(By.XPATH, xPATH_link)
+    for j in news_link:
+        a_link = j.get_attribute('href')
+        news_link_arr.append(a_link)
+    # print(news_link_arr)
+
+    # преобразование ссылок в нужный вид
+    link_mass = []
+    for link in news_link_arr:
+        link1 = '<a href="%s">kommersant.ru</a>' % link
+        link_mass.append(link1)
+
+    message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    # print(message_text)
+    return message_text
 
 
 
