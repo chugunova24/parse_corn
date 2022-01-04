@@ -15,6 +15,7 @@ import requests
 from urllib.request import urlopen
 from lxml import etree
 import re
+import itertools
 
 
 # работа браузера без интерфейса
@@ -25,8 +26,8 @@ option.headless = True
 # chrome_options = webdriver.ChromeOptions()
 # PROXY = "103.124.2.229:3128"
 # chrome_options.add_argument('--proxy-server=%s' % PROXY)
-PROXY = "103.124.2.229:3128"
-option.add_argument('--proxy-server=%s' % PROXY)
+# PROXY = "103.124.2.229:3128"
+# option.add_argument('--proxy-server=%s' % PROXY)
 
 driver = webdriver.Chrome(options=option)
 driver.set_window_size(1920, 1080)
@@ -37,10 +38,9 @@ date_today = format_date(x2, locale='de_DE')
 
 
 
-AllParseResult = ""
+AllParseResult = []
 
 def GetParseResult():
-
     return AllParseResult
 
 async def MainParser():
@@ -48,18 +48,53 @@ async def MainParser():
     task2 = asyncio.create_task(zol_ru())
     task3 = asyncio.create_task(agroinvestor_ru())
     task4 = asyncio.create_task(agriculture_com())
-    task5 = asyncio.create_task(forbes_ru())
-    task6 = asyncio.create_task(spglobal_com())
-    await asyncio.wait([task1, task2, task3, task4, task5, task6])
-    # await asyncio.wait([task1])
+    task5 = asyncio.create_task(apk_inform_com())
+    task6 = asyncio.create_task(oilworld_ru())
+    task7 = asyncio.create_task(interfax_ru())
+    task8 = asyncio.create_task(lenta_ru_politic())
+    task9 = asyncio.create_task(lenta_ru_economics())
+    task10 = asyncio.create_task(forbes_ru())
+    task11 = asyncio.create_task(spglobal_com())
+    task12 = asyncio.create_task(rbc_ru())
+    task13 = asyncio.create_task(ria_ru_1())
+    task14 = asyncio.create_task(ria_ru_2())
+    task15 = asyncio.create_task(ria_ru_3())
+    task16 = asyncio.create_task(tass_ru_1())
+    task17 = asyncio.create_task(tass_ru_2())
+    task18 = asyncio.create_task(kommersant_ru_economics())
+    task19 = asyncio.create_task(kommersant_ru_politics())
+    task20 = asyncio.create_task(kommersant_ru_business())
+    task21 = asyncio.create_task(kommersant_ru_consumer_market())
+    task22 = asyncio.create_task(kommersant_ru_finances())
+
+    await asyncio.wait([task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12, task13, \
+                        task14, task15, task16, task17, task18, task19, task20, task21, task22])
+    # await asyncio.wait([task1, task2])
 
     try:
         global AllParseResult
-        AllParseResult = task1.result() + task2.result() + task3.result() + task4.result() + task5.result() + task6.result()
-        # print('ПОЛНЫЙ СПИСОК', a)
-    except Exception:
-        print('ОШИБКА ПОИСКА')
+        # AllParseResult = list(itertools.chain(task1.result(), task2.result()))
+                         # task1.result() + task2.result()
+                         # + task3.result() + task4.result()
+                         # + task5.result() + \
+                         # task6.result() + task7.result() + task8.result() + task9.result() + task10.result() + \
+                         # task11.result() + task12.result() + task13.result() + task14.result() + task15.result() + \
+                         # task16.result() + task17.result() + task18.result() + task19.result() + task20.result() + \
+                         # task21.result() + task22.result()
 
+        # С проверкой на None!
+        AllTasks = [task1.result(), task2.result(), task3.result(), task4.result(), task5.result(),\
+                    task6.result(), task7.result(), task8.result(), task9.result(), task10.result(), \
+                    task11.result(), task12.result(), task13.result(), task14.result(), task15.result(), \
+                    task16.result(), task17.result(), task18.result(), task19.result(), task20.result(), \
+                    task21.result(), task22.result()]
+        print('ОБЩИЙ ЛИСТ СОЗДАН')
+        for i in AllTasks:
+            if i != None:
+                AllParseResult.extend(i)
+        print('ПОЛНЫЙ СПИСОК', AllParseResult)
+    except Exception as e:
+        print('ОШИБКА ПОИСКА', e)
     print('ЗАВЕРШЕНО')
 
 
@@ -106,9 +141,11 @@ async def zerno_ru():
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, full_links)]
     # print(message_text)
+    print('zerno.ru', type(message_text))
 
+    if message_text != []:
+        return message_text
 
-    return message_text
 
 
 async def zol_ru():
@@ -144,7 +181,7 @@ async def zol_ru():
     # print(pre_mass)
 
 
-    # поиск индекс строки с датой, проверка массива на пустоту
+    # поиск индекса строки с датой, проверка массива на пустоту
     # print(date_today)
     try:
         index_elem = pre_mass.index(date_today)
@@ -197,8 +234,10 @@ async def zol_ru():
 
     # for x in message_text:
     #     bot.send_message(message.chat.id, x, disable_web_page_preview=True, parse_mode='html')
+    print('zol.ru', type(message_text))
 
-    return message_text
+    if message_text != []:
+        return message_text
 
 
 
@@ -251,17 +290,19 @@ async def agroinvestor_ru():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    if message_text == []:
+        print('На сайте https://www.agroinvestor.ru/ нет сегодня новостей!')
 
     # for x in message_text:
     #     bot.send_message(message.chat.id, x, disable_web_page_preview=True, parse_mode='html')
+    print('agroinvestor.ru', type(message_text))
 
-    return message_text
+    if message_text != []:
+        return message_text
 
 
 async def agriculture_com():
-
     # BS4
-
     URL = 'https://www.agriculture.com/search?search_api_views_fulltext=&sort_by=created'
 
     # date_today = '12.07.2021'
@@ -318,12 +359,16 @@ async def agriculture_com():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    if message_text == []:
+        print('На сайте https://www.agriculture.com/search?search_api_views_fulltext=&sort_by=created нет сегодня новостей!')
     # print(message_text)
 
     # for x in message_text:
     #     bot.send_message(message.chat.id, x, disable_web_page_preview=True, parse_mode='html')
+    print('agriculture.com', type(message_text))
 
-    return message_text
+    if message_text != []:
+        return message_text
 
 async def apk_inform_com():
     URL = 'https://www.apk-inform.com/ru/news/russia'
@@ -360,6 +405,9 @@ async def apk_inform_com():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    if message_text == []:
+        print('На сайте https://www.apk-inform.com/ru/news/russia нет сегодня новостей!')
+    print('apk-inform.com', type(message_text))
     return message_text
 
 
@@ -436,8 +484,10 @@ async def oilworld_ru():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    if message_text == []:
+        print('На сайте https://www.oilworld.ru/news/all нет сегодня новостей!')
     # print(message_text)
-
+    print('oilworld.ru', type(message_text))
     return message_text
 
 
@@ -516,8 +566,10 @@ async def interfax_ru():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    if message_text == []:
+        print('На сайте https://www.interfax.ru/news нет сегодня новостей!')
     # print(message_text)
-
+    print('interfax.ru', type(message_text))
     return message_text
 
 async def lenta_ru_politic():
@@ -570,8 +622,10 @@ async def lenta_ru_politic():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    if message_text == []:
+        print('На сайте https://lenta.ru/rubrics/world/politic/1/ нет сегодня новостей!')
     # print(message_text)
-
+    print('lenta.ru/rubrics/world/politic', type(message_text))
     return message_text
 
 
@@ -625,8 +679,10 @@ async def lenta_ru_economics():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    if message_text == []:
+        print('На сайте https://lenta.ru/rubrics/economics/ нет сегодня новостей!')
     # print(message_text)
-
+    print('lenta.ru/rubrics/economics/', type(message_text))
     return message_text
 
 
@@ -639,13 +695,15 @@ async def lenta_ru_economics():
 async def forbes_ru():
     # date_today = '03.12.2021'
 
-
     URL = 'https://www.forbes.ru/'
     xPATH = '''//ul[@data-interval="%s"]/li/a/div[@class="Tt2J2"]''' % date_today
-    xPATH_link = '''//ul[@data-interval="09.12.2021"]/li/a/div[@class="Tt2J2"]/..'''
+    xPATH_link = '''//ul[@data-interval="%s"]/li/a/div[@class="Tt2J2"]/..''' % date_today
+    xPATH_button = '''/div/div[2]/button'''
+    # print(date_today)
 
     driver.get(URL)
-
+    # time.sleep(3)
+    # driver.find_element(By.XPATH, xPATH_button).click()
     # ищет новости на сегодня
     cell_news_arr = []
     cell_news = driver.find_elements(By.XPATH, xPATH)
@@ -669,22 +727,21 @@ async def forbes_ru():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
-    forbes_massive = message_text
-
-    # driver.quit()
-
-    return forbes_massive
+    if message_text == []:
+        print('На сайте https://www.forbes.ru/ нет сегодня новостей!')
+    print('forbes.ru', type(message_text))
+    print(message_text)
+    return message_text
 
 
 async def spglobal_com():
-
     URL = '''https://www.spglobal.com/platts/en/search-results?q='''
 
-    date_today = format_date(x2, "d MMM yyy", locale='en')
+    date_today = format_date(x2, "dd MMM yyy", locale='en')
     # print(date_today)
 
     xPATH = '''//li[contains(.,"%s")]/div/a/h5''' % date_today
-    xPATH_link = '''//li[contains(.,"%s")]/div/a''' % date_today
+    xPATH_link = '''//li[contains(.,"%s")]/div/a[1]''' % date_today
 
     driver.get(URL)
     # кнопка "Load more"
@@ -706,7 +763,7 @@ async def spglobal_com():
     time.sleep(3)
     loadMoreButton.click()
     time.sleep(5)
-    print('receive button!')
+    # print('receive button!')
 
     # ищет новости на сегодня
     cell_news_arr = []
@@ -714,7 +771,6 @@ async def spglobal_com():
     for i in cell_news:
         cell_news_arr.append(i.text)
     # print(cell_news_arr)
-
 
     # поиск ссылок
     news_link_arr = []
@@ -731,7 +787,10 @@ async def spglobal_com():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
-    # print(message_text)
+    if message_text == []:
+        print('На сайте https://www.spglobal.com/platts/en/search-results?q= нет сегодня новостей!')
+    # pprint(message_text)
+    print('spglobal.com', type(message_text))
     return message_text
 
 
@@ -741,7 +800,7 @@ async def rbc_ru():
     yesterday = datetime.datetime.now() - datetime.timedelta(1)
     date_yesterday = format_date(yesterday, "dd MMM", locale='ru')
     date_yesterday = str(date_yesterday).replace('.', '')
-    print(date_yesterday)
+    # print(date_yesterday)
 
 
     # xPATH = '''//div[@class="search-item js-search-item"]/div/a/span/span[1]'''
@@ -795,7 +854,7 @@ async def rbc_ru():
         a = dom.xpath(xPATH_yesterday)[i].text
         a = re.sub("^\s+|\n|\r|\xa0|\s+$", '', a)
         yesterday_new = a
-        print(yesterday_new)
+        # print(yesterday_new)
     # входит ли yesterday_new в список новостей?
     if yesterday_new in cell_news_arr:
         print(True)
@@ -824,7 +883,10 @@ async def rbc_ru():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    if message_text == []:
+        print('На сайте https://www.rbc.ru/search нет сегодня новостей!')
     # print(message_text)
+    print('rbc.ru', type(message_text))
 
     return message_text
 
@@ -881,7 +943,10 @@ async def ria_ru_1():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    if message_text == []:
+        print('На сайте https://ria.ru/world/ нет сегодня новостей!')
     # print(message_text)
+    print('ria.ru/world/', type(message_text))
 
     return message_text
 
@@ -935,7 +1000,10 @@ async def ria_ru_2():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    if message_text == []:
+        print('На сайте https://ria.ru/politics/ нет сегодня новостей!')
     # print(message_text)
+    print('ria.ru/politics/', type(message_text))
 
     return message_text
 
@@ -981,8 +1049,10 @@ async def ria_ru_3():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    if message_text == []:
+        print('На сайте https://ria.ru/economy/ нет сегодня новостей!')
     # print(message_text)
-
+    print('ria.ru/economy/', type(message_text))
     return message_text
 
 
@@ -1030,8 +1100,10 @@ async def tass_ru_1():
         message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
         for x in message_text:
             all_info.append(x)
+    if all_info == []:
+        print('На сайтах https://tass.ru/msp, https://tass.ru/ekonomika, https://tass.ru/politika нет сегодня новостей!')
     # print(all_info)
-
+    print('https://tass.ru/msp, https://tass.ru/ekonomika, https://tass.ru/politika', type(all_info))
     return all_info
 
 async def tass_ru_2():
@@ -1082,79 +1154,93 @@ async def tass_ru_2():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    if message_text == []:
+        print('На сайте https://tass.ru/obschestvo нет сегодня новостей!')
     # pprint.pprint(message_text)
+    print('tass.ru/obschestvo', type(message_text))
 
     return message_text
 
-async def reuters_com():
-    URL = '''https://www.reuters.com/markets/commodities/'''
 
-    xPATH1 = '''//time[contains(text(), "MSK")]/../../div[2]/a'''
-    xPATH_link1 = '''//time[contains(text(), "MSK")]/../../div[2]/a'''
 
-    xPATH2 = '''//time[contains(text(), "MSK")]/../span[2]'''
-    xPATH_link2 = '''//time[contains(text(), "MSK")]/../../a'''
-    xPATH_button = '''//div[@class="Topic__loadmore___3juLCQ"]/button/div/span'''
 
-    driver.get(URL)
-    try:
-        time.sleep(2)
-        driver.find_element(By.XPATH, xPATH_button).click()
-        time.sleep(2)
-        driver.find_element(By.XPATH, xPATH_button).click()
-        time.sleep(1)
-        driver.find_element(By.XPATH, xPATH_button).click()
-        time.sleep(2)
-        driver.find_element(By.XPATH, xPATH_button).click()
-    except Exception as e:
-        print(e)
-    # agent = driver.execute_script("return navigator.userAgent")
-    # print(agent)
 
-    # ищет новости на сегодня
-    cell_news_arr = []
-    cell_news = driver.find_elements(By.XPATH, xPATH1)
-    for i in cell_news:
-        cell_news_arr.append(i.text)
-    # print(cell_news_arr)
+                 # ПАРСЕР С ПРОКСИ
+# async def reuters_com():
+#     URL = '''https://www.reuters.com/markets/commodities/'''
+#
+#     xPATH1 = '''//time[contains(text(), "MSK")]/../../div[2]/a'''
+#     xPATH_link1 = '''//time[contains(text(), "MSK")]/../../div[2]/a'''
+#
+#     xPATH2 = '''//time[contains(text(), "MSK")]/../span[2]'''
+#     xPATH_link2 = '''//time[contains(text(), "MSK")]/../../a'''
+#     xPATH_button = '''//div[@class="Topic__loadmore___3juLCQ"]/button/div/span'''
+#
+#     driver.get(URL)
+#     try:
+#         time.sleep(2)
+#         driver.find_element(By.XPATH, xPATH_button).click()
+#         time.sleep(2)
+#         driver.find_element(By.XPATH, xPATH_button).click()
+#         time.sleep(1)
+#         driver.find_element(By.XPATH, xPATH_button).click()
+#         time.sleep(2)
+#         driver.find_element(By.XPATH, xPATH_button).click()
+#     except Exception as e:
+#         print(e)
+#     # agent = driver.execute_script("return navigator.userAgent")
+#     # print(agent)
+#
+#     # ищет новости на сегодня
+#     cell_news_arr = []
+#     cell_news = driver.find_elements(By.XPATH, xPATH1)
+#     for i in cell_news:
+#         cell_news_arr.append(i.text)
+#     # print(cell_news_arr)
+#
+#     cell_news = driver.find_elements(By.XPATH, xPATH2)
+#     for i in cell_news:
+#         cell_news_arr.append(i.text)
+#     # print(cell_news_arr)
+#     # print(len(cell_news_arr))
+#
+#     # ссылки
+#     news_link_arr = []
+#     link_news = driver.find_elements(By.XPATH, xPATH_link1)
+#     for i in link_news:
+#         a_link = i.get_attribute('href')
+#         news_link_arr.append(a_link)
+#     # pprint(news_link_arr)
+#     # print()
+#
+#     link_news = driver.find_elements(By.XPATH, xPATH_link2)
+#     for i in link_news:
+#         a_link = i.get_attribute('href')
+#         news_link_arr.append(a_link)
+#     # pprint.pprint(news_link_arr)
+#     # print(len(news_link_arr))
+#
+#     # преобразование ссылок в нужный вид
+#     link_mass = []
+#     for link in news_link_arr:
+#         link1 = '<a href="%s">reuters.com</a>' % link
+#         link_mass.append(link1)
+#
+#     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+#     # print(message_text)
+#
+#     return message_text
 
-    cell_news = driver.find_elements(By.XPATH, xPATH2)
-    for i in cell_news:
-        cell_news_arr.append(i.text)
-    # print(cell_news_arr)
-    # print(len(cell_news_arr))
 
-    # ссылки
-    news_link_arr = []
-    link_news = driver.find_elements(By.XPATH, xPATH_link1)
-    for i in link_news:
-        a_link = i.get_attribute('href')
-        news_link_arr.append(a_link)
-    # pprint(news_link_arr)
-    # print()
 
-    link_news = driver.find_elements(By.XPATH, xPATH_link2)
-    for i in link_news:
-        a_link = i.get_attribute('href')
-        news_link_arr.append(a_link)
-    # pprint.pprint(news_link_arr)
-    # print(len(news_link_arr))
 
-    # преобразование ссылок в нужный вид
-    link_mass = []
-    for link in news_link_arr:
-        link1 = '<a href="%s">reuters.com</a>' % link
-        link_mass.append(link1)
 
-    message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
-    # print(message_text)
 
-    return message_text
-
-def kommersant_ru_economics():
+async def kommersant_ru_economics():
     year_today = format_date(x2, "yyy", locale='ru')
     mounth_today = format_date(x2, "MM", locale='ru')
     day_today = format_date(x2, "dd", locale='ru')
+    # print(year_today,mounth_today,day_today)
                 # ДАТА!!!
     URL = 'https://www.kommersant.ru/archive/rubric/3/day/%s-%s-%s' % (year_today, mounth_today, day_today)
     # URL = '''https://www.kommersant.ru/archive/rubric/3/day/2018-06-14?page=2'''  # тест для кнопки "Показать ещё"
@@ -1203,14 +1289,18 @@ def kommersant_ru_economics():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    if message_text == []:
+        print('На сайте https://www.kommersant.ru/archive/rubric/3/day нет сегодня новостей!')
     # print(message_text)
+    print('kommersant.ru/archive/rubric/3', type(message_text))
     return message_text
 
 
-def kommersant_ru_politics():
+async def kommersant_ru_politics():
     year_today = format_date(x2, "yyy", locale='ru')
     mounth_today = format_date(x2, "MM", locale='ru')
     day_today = format_date(x2, "dd", locale='ru')
+    # print(year_today,mounth_today,day_today)
                 # ДАТА!!!
     URL = 'https://www.kommersant.ru/archive/rubric/2/day/%s-%s-%s' % (year_today, mounth_today, day_today)
     # URL = '''https://www.kommersant.ru/archive/rubric/3/day/2018-06-14?page=2'''  # тест для кнопки "Показать ещё"
@@ -1260,13 +1350,17 @@ def kommersant_ru_politics():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    if message_text == []:
+        print('На сайте https://www.kommersant.ru/archive/rubric/2/day нет сегодня новостей!')
     # print(message_text)
+    print('kommersant.ru/archive/rubric/2', type(message_text))
     return message_text
 
-def kommersant_ru_business():
+async def kommersant_ru_business():
     year_today = format_date(x2, "yyy", locale='ru')
     mounth_today = format_date(x2, "MM", locale='ru')
     day_today = format_date(x2, "dd", locale='ru')
+    # print(year_today,mounth_today,day_today)
                 # ДАТА!!!
     URL = 'https://www.kommersant.ru/archive/rubric/4/day/%s-%s-%s' % (year_today, mounth_today, day_today)
     # URL = '''https://www.kommersant.ru/archive/rubric/3/day/2018-06-14?page=2'''  # тест для кнопки "Показать ещё"
@@ -1293,7 +1387,6 @@ def kommersant_ru_business():
     except Exception as e:
         print(e)
 
-
     # ищет новости на сегодня
     cell_news_arr = []
     cell_news = driver.find_elements(By.XPATH, xPATH)
@@ -1316,13 +1409,17 @@ def kommersant_ru_business():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    if message_text == []:
+        print('На сайте https://www.kommersant.ru/archive/rubric/4/day нет сегодня новостей!')
     # print(message_text)
+    print('kommersant.ru/archive/rubric/4', type(message_text))
     return message_text
 
-def kommersant_ru_consumer_market():
+async def kommersant_ru_consumer_market():
     year_today = format_date(x2, "yyy", locale='ru')
     mounth_today = format_date(x2, "MM", locale='ru')
     day_today = format_date(x2, "dd", locale='ru')
+    # print(year_today,mounth_today,day_today)
                 # ДАТА!!!
     URL = 'https://www.kommersant.ru/archive/rubric/41/day/%s-%s-%s' % (year_today, mounth_today, day_today)
     # URL = '''https://www.kommersant.ru/archive/rubric/3/day/2018-06-14?page=2'''  # тест для кнопки "Показать ещё"
@@ -1371,13 +1468,17 @@ def kommersant_ru_consumer_market():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    if message_text == []:
+        print('На сайте https://www.kommersant.ru/archive/rubric/41/day нет сегодня новостей!')
     # print(message_text)
+    print('kommersant.ru/archive/rubric/41', type(message_text))
     return message_text
 
-def kommersant_ru_finances():
+async def kommersant_ru_finances():
     year_today = format_date(x2, "yyy", locale='ru')
     mounth_today = format_date(x2, "MM", locale='ru')
     day_today = format_date(x2, "dd", locale='ru')
+    # print(year_today,mounth_today,day_today)
                 # ДАТА!!!
     URL = 'https://www.kommersant.ru/archive/rubric/40/day/%s-%s-%s' % (year_today, mounth_today, day_today)
     # URL = '''https://www.kommersant.ru/archive/rubric/3/day/2018-06-14?page=2'''  # тест для кнопки "Показать ещё"
@@ -1426,7 +1527,10 @@ def kommersant_ru_finances():
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    if message_text == []:
+        print('На сайте https://www.kommersant.ru/archive/rubric/40/day нет сегодня новостей!')
     # print(message_text)
+    print('kommersant.ru/archive/rubric/40', type(message_text))
     return message_text
 
 
@@ -1437,7 +1541,7 @@ def kommersant_ru_finances():
 def executeSomething():
     print(AllParseResult)
     asyncio.run(MainParser())
-    t = threading.Timer(60.0, executeSomething)  #600.0
+    t = threading.Timer(300.0, executeSomething)  #600.0
     t.start()
 
 executeSomething()

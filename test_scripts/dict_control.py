@@ -3,7 +3,7 @@ import main
 # добавление ключевого слова
 def dict_new_word(message):
    f = open('../dict.txt', 'a', encoding='utf-8')
-   word = 'бляьб1111'
+   word = 'wees'
    f.write('\n')
    f.write(word + ' ')
    f.close
@@ -12,7 +12,7 @@ def dict_new_word(message):
 # добавление синонимов к ключевому слову
 def synonym(message):
    f = open('../dict.txt', 'a', encoding='utf-8')
-   word = ['сука', 'ааа', 'нееееет']
+   word = ['adssa', 'ааа', 'неееasdaеет']
    for elem in word:
       f.write(elem + ' ')
    f.close

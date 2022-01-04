@@ -23,10 +23,11 @@ start_time = time.time()
 
 # работа браузера без интерфейса
 option = Options()
-option.headless = False
+option.headless = True
 
-# # chrome_options = webdriver.ChromeOptions()
-# PROXY = "103.124.2.229:3128"
+# chrome_options = webdriver.ChromeOptions()
+# # # PROXY = "8.210.149.254:59394"
+# PROXY = "8.210.149.254:59394"
 # option.add_argument('--proxy-server=%s' % PROXY)
 
 driver = webdriver.Chrome(options=option)
@@ -36,62 +37,47 @@ x = datetime.datetime.today()
 x2 = datetime.datetime.date(x)
 date_today = format_date(x2, locale='de_DE')
 
-def nasdaq_com():
-    URL = '''https://www.nasdaq.com/news-and-insights/topic/markets/commodities'''
-    xPATH = '''//a[@class="content-feed__card-title-link"]'''
-    xPATH_link = '''//a[@class="content-feed__card-title-link"]/@href'''
-    xPATH_element = '''/html/body/div[1]/div/main/div[2]/div[2]/div/div[1]/section/div[1]/div/div[2]/div/div[1]/div'''
+def forbes_ru():
+    # date_today = '03.12.2021'
 
-    #  -------------- BS4 ----------------
+    URL = 'https://www.forbes.ru/'
+    xPATH = '''//ul[@data-interval="%s"]/li/a/div[@class="Tt2J2"]''' % date_today
+    xPATH_link = '''//ul[@data-interval="%s"]/li/a/div[@class="Tt2J2"]/..''' % date_today
+    xPATH_button = '''/div/div[2]/button'''
+    # print(date_today)
 
-    # webpage = requests.get(URL, timeout=10)
-    # print('страница получена')
-    # soup = BeautifulSoup(webpage.content, "html.parser")
-    # print('страница получена2')
-    # dom = etree.HTML(str(soup))
-    # print('дом')
-    # count_index = dom.xpath(xPATH)
-    # print('дом поиск икспаф')
-    #
-    # # поиск содержимого блоков НА 1 СТРАНИЦЕ
-    # cell_news_arr = []
-    # for i in range(0, len(count_index)):
-    #     a = dom.xpath(xPATH)[i].text
-    #     print('получить текст из элементов')
-    #     cell_news_arr.append(a)
+    driver.get(URL)
+    # time.sleep(3)
+    # driver.find_element(By.XPATH, xPATH_button).click()
+    # ищет новости на сегодня
+    cell_news_arr = []
+    cell_news = driver.find_elements(By.XPATH, xPATH)
+    for i in cell_news:
+        cell_news_arr.append(i.text)
     # print(cell_news_arr)
-    #
-    # # # поиск ссылок на содержимое блоков
-    # # news_link_arr = []
-    # # for i in range(0, len(count_index)):
-    # #     a = dom.xpath(xPATH_link)[i]
-    # #     news_link_arr.append(a)
+    # print(date_today)
 
+    # поиск ссылок
+    news_link_arr = []
+    news_link = driver.find_elements(By.XPATH, xPATH_link)
+    for j in news_link:
+        a_link = j.get_attribute('href')
+        news_link_arr.append(a_link)
+    # print(news_link_arr)
 
-    try:
-        driver.get(URL)
-        # driver.execute_script("window.stop();")
-        element = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, xPATH_element)))
-        print('window STOP')
-        # ищет новости на сегодня
-        cell_news_arr = []
-        cell_news = driver.find_elements(By.XPATH, xPATH)
-        for i in cell_news:
-            cell_news_arr.append(i.text)
-        print(cell_news_arr)
+    # преобразование ссылок в нужный вид
+    link_mass = []
+    for link in news_link_arr:
+        link1 = '<a href="%s">forbes.ru</a>' % link
+        link_mass.append(link1)
 
-    finally:
-        driver.quit()
-
-    # # ищет новости на сегодня
-    # cell_news_arr = []
-    # cell_news = driver.find_elements(By.XPATH, xPATH)
-    # for i in cell_news:
-    #     cell_news_arr.append(i.text)
-    # print(cell_news_arr)
-
-
-nasdaq_com()
+    message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
+    if message_text == []:
+        print('На сайте https://www.forbes.ru/ нет сегодня новостей!')
+    print('forbes.ru', type(message_text))
+    print(message_text)
+    # return message_text
+    driver.quit()
+forbes_ru()
 
 print("--- %s seconds ---" % (time.time() - start_time))

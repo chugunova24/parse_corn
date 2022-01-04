@@ -123,26 +123,26 @@ def AddSynonimWord(SynWord):
 
 
 
-
-# НЕ ДОДЕЛАН!!!!!!!!!!!!!
-def ria_ru():
-    URL = '''https://ria.ru/search/?query='''
-
-    xPATH = '''//*[contains(text(),'Сегодня')]/../../../../..//a[@class='text']'''
-    xPATH_link = '''//*[contains(text(),'Сегодня')]/../../../../..//a[@class='text']/@href'''
-
-    webpage = requests.get(URL)
-    soup = BeautifulSoup(webpage.content, "html.parser")
-    dom = etree.HTML(str(soup))
-    count_index = dom.xpath(xPATH)
-    # count_index = len(count_index)
-
-    # поиск содержимого блоков НА 1 СТРАНИЦЕ
-    cell_news_arr = []
-    for i in range(0, len(count_index)):
-        a = dom.xpath(xPATH)[i].text
-        cell_news_arr.append(a)
-    # print(cell_news_arr)
+      # хз для чего это
+# # НЕ ДОДЕЛАН!!!!!!!!!!!!!
+# def ria_ru():
+#     URL = '''https://ria.ru/search/?query='''
+#
+#     xPATH = '''//*[contains(text(),'Сегодня')]/../../../../..//a[@class='text']'''
+#     xPATH_link = '''//*[contains(text(),'Сегодня')]/../../../../..//a[@class='text']/@href'''
+#
+#     webpage = requests.get(URL)
+#     soup = BeautifulSoup(webpage.content, "html.parser")
+#     dom = etree.HTML(str(soup))
+#     count_index = dom.xpath(xPATH)
+#     # count_index = len(count_index)
+#
+#     # поиск содержимого блоков НА 1 СТРАНИЦЕ
+#     cell_news_arr = []
+#     for i in range(0, len(count_index)):
+#         a = dom.xpath(xPATH)[i].text
+#         cell_news_arr.append(a)
+#     # print(cell_news_arr)
 
 
 
