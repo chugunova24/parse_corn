@@ -16,11 +16,20 @@ from urllib.request import urlopen
 from lxml import etree
 import re
 import itertools
+import os
 
 
 # работа браузера без интерфейса
 option = Options()
-option.headless = True
+# option = webdriver.ChromeOptions()
+# option.headless = True
+option.binary_location = os.environ.get('GOOGLE_CHROME_BIN')
+# option.binary_location = os.environ.get('GOOGLE_CHROME_SHIM', None)
+# executable_path=os.environ.get('CHROMEDRIVER_PATH'),
+option.add_argument('--headless')
+option.add_argument('--no-sandbox')
+option.add_argument('--disable-gpu')
+option.add_argument('--disable-dev-sh-usage')
 
 # # proxy-server //japan
 # chrome_options = webdriver.ChromeOptions()
@@ -29,7 +38,7 @@ option.headless = True
 # PROXY = "103.124.2.229:3128"
 # option.add_argument('--proxy-server=%s' % PROXY)
 
-driver = webdriver.Chrome(options=option)
+driver = webdriver.Chrome(executable_path=str(os.environ.get('CHROMEDRIVER_PATH')), options=option)
 driver.set_window_size(1920, 1080)
 
 x = datetime.datetime.today()
