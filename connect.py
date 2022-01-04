@@ -1541,7 +1541,7 @@ async def kommersant_ru_finances():
 def executeSomething():
     print(AllParseResult)
     asyncio.run(MainParser())
-    t = threading.Timer(300.0, executeSomething)  #600.0
+    t = threading.Timer(1800.0, executeSomething)  #600.0
     t.start()
 
 executeSomething()
