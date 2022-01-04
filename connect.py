@@ -24,8 +24,8 @@ option = Options()
 # option = webdriver.ChromeOptions()
 # option.headless = True
 
-# option.binary_location = os.environ.get('GOOGLE_CHROME_BIN')
-option.binary_location = GOOGLE_CHROME_BIN
+option.binary_location = os.environ.get('GOOGLE_CHROME_BIN')
+# option.binary_location = GOOGLE_CHROME_BIN
 # option.binary_location = os.environ.get('GOOGLE_CHROME_SHIM', None)
 # executable_path=os.environ.get('CHROMEDRIVER_PATH'),
 option.add_argument('--headless')
@@ -40,8 +40,8 @@ option.add_argument('--disable-dev-sh-usage')
 # PROXY = "103.124.2.229:3128"
 # option.add_argument('--proxy-server=%s' % PROXY)
 
-# driver = webdriver.Chrome(executable_path=str(os.environ.get('CHROMEDRIVER_PATH')), options=option)
-driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, options=option)
+driver = webdriver.Chrome(executable_path=str(os.environ.get('CHROMEDRIVER_PATH')), options=option)
+# driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, options=option)
 driver.set_window_size(1920, 1080)
 
 x = datetime.datetime.today()
