@@ -713,7 +713,10 @@ async def forbes_ru():
     xPATH_button = '''/div/div[2]/button'''
     # print(date_today)
 
-    driver.get(URL)
+    try:
+        driver.get(URL)
+    except Exception as e:
+        print('forbes_ru:', e)
     # time.sleep(3)
     # driver.find_element(By.XPATH, xPATH_button).click()
     # ищет новости на сегодня
