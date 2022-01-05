@@ -31,7 +31,7 @@ option.binary_location = os.environ.get('GOOGLE_CHROME_BIN')
 option.add_argument('--headless')
 option.add_argument('--no-sandbox')
 option.add_argument('--disable-gpu')
-option.add_argument('--disable-dev-sh-usage')
+option.add_argument('--disable-dev-shm-usage')
 
 # # proxy-server //japan
 # chrome_options = webdriver.ChromeOptions()
