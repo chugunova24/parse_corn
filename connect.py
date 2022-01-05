@@ -770,11 +770,14 @@ async def spglobal_com():
     #         print(e, '\n')
     #         break
 
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    loadMoreButton = driver.find_element(By.XPATH, '//*[@id="loadSearch"]/a/span')
-    time.sleep(3)
-    loadMoreButton.click()
-    time.sleep(5)
+    try:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        loadMoreButton = driver.find_element(By.XPATH, '//*[@id="loadSearch"]/a/span')
+        time.sleep(3)
+        loadMoreButton.click()
+        time.sleep(5)
+    except Exception as e:
+        print('spglobal_com:', e)
     # print('receive button!')
 
     # ищет новости на сегодня
@@ -821,31 +824,34 @@ async def rbc_ru():
     xPATH_yesterday = '''//span[contains(.,"%s")]/../span[@class="news-feed__item__title"]''' % date_yesterday
 
     driver.get(URL)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(1)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(1)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(1)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(1)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(1)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(1)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(1)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(1)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(1)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(1)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(1)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(1)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    try:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    except Exception as e:
+        print('rbc_ru:', e)
 
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
@@ -922,20 +928,23 @@ async def ria_ru_1():
     # time.sleep(2)
     # driver.find_element(By.XPATH, xPATH_Period).click()
     # print('Период выставлен')
-    time.sleep(1)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(3)
-    # Load more
-    driver.find_element(By.XPATH, xPATH_LoadMore).click()
-    # print('Load more')
-    time.sleep(3)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(2)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(2)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(2)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    try:
+        time.sleep(1)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(3)
+        # Load more
+        driver.find_element(By.XPATH, xPATH_LoadMore).click()
+        # print('Load more')
+        time.sleep(3)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    except Exception as e:
+        print('ria_ru_1:', e)
 
     # ищет новости на сегодня и ссылки
     cell_news_arr = []
@@ -982,17 +991,19 @@ async def ria_ru_2():
     # time.sleep(2)
     # driver.find_element(By.XPATH, xPATH_Period).click()
     # print('Период выставлен')
-
-    time.sleep(1)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    # time.sleep(3)
-    # # Load more
-    # driver.find_element(By.XPATH, xPATH_LoadMore).click()
-    # # print('Load more')
-    # time.sleep(3)
-    time.sleep(1)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(1)
+    try:
+        time.sleep(1)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        # time.sleep(3)
+        # # Load more
+        # driver.find_element(By.XPATH, xPATH_LoadMore).click()
+        # # print('Load more')
+        # time.sleep(3)
+        time.sleep(1)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(1)
+    except Exception as e:
+        print('ria_ru_2:', e)
 
     # ищет новости на сегодня и ссылки
     cell_news_arr = []
@@ -1038,7 +1049,7 @@ async def ria_ru_3():
         driver.find_element(By.XPATH, xPATH_LoadMore).click()
         # print('Load more')
     except Exception as e:
-        print(e)
+        print('ria_ru_3:', e)
     time.sleep(3)
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     time.sleep(1)
@@ -1086,7 +1097,7 @@ async def tass_ru_1():
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(1)
         except Exception as e:
-            print(e)
+            print('tass_ru_1:', e)
 
         # ищет новости на сегодня и ссылки
         cell_news_arr = []
@@ -1139,7 +1150,7 @@ async def tass_ru_2():
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(1)
     except Exception as e:
-        print(e)
+        print('tass_ru_2:', e)
 
     # ищет новости на сегодня и ссылки
     cell_news_arr = []
@@ -1277,7 +1288,7 @@ async def kommersant_ru_economics():
         time.sleep(1)
         driver.find_element(By.XPATH, xPATH_button).click()
     except Exception as e:
-        print(e)
+        print('kommersant_ru_economics:', e)
 
     # ищет новости на сегодня
     cell_news_arr = []
@@ -1337,7 +1348,7 @@ async def kommersant_ru_politics():
         time.sleep(1)
         driver.find_element(By.XPATH, xPATH_button).click()
     except Exception as e:
-        print(e)
+        print('kommersant_ru_politics:', e)
 
 
     # ищет новости на сегодня
@@ -1397,7 +1408,7 @@ async def kommersant_ru_business():
         time.sleep(1)
         driver.find_element(By.XPATH, xPATH_button).click()
     except Exception as e:
-        print(e)
+        print('kommersant_ru_business:', e)
 
     # ищет новости на сегодня
     cell_news_arr = []
@@ -1456,7 +1467,7 @@ async def kommersant_ru_consumer_market():
         time.sleep(1)
         driver.find_element(By.XPATH, xPATH_button).click()
     except Exception as e:
-        print(e)
+        print('kommersant_ru_consumer_market:', e)
 
     # ищет новости на сегодня
     cell_news_arr = []
@@ -1515,7 +1526,7 @@ async def kommersant_ru_finances():
         time.sleep(1)
         driver.find_element(By.XPATH, xPATH_button).click()
     except Exception as e:
-        print(e)
+        print('kommersant_ru_finances:', e)
 
     # ищет новости на сегодня
     cell_news_arr = []
