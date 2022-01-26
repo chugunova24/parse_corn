@@ -162,6 +162,7 @@ def delKeyWord(message):
     check = 0
     HaveKey = False
     for line in f_lines:
+        line = line.replace('\n', '')
         words = line.split(' ')
         for word in words:
             if words[0] == KeyWordText:
@@ -327,7 +328,7 @@ def AddKeyWord(message):
                     return bot.send_message(message.chat.id, 'Процесс остановлен.')
                 if textUser == 'да':
                     f = open('dict.txt', 'a+', encoding='utf-8')
-                    wordK = f.write(NLP_CASE(WordText))
+                    wordK = f.write(nlp_result)
                     bot.send_message(message.chat.id, f"Ключевое слово с синонимами: <strong>{nlp_result}</strong> успешно добавлено.", parse_mode="html")
                     f.close()
                     congrat()
