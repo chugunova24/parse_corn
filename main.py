@@ -618,6 +618,7 @@ async def asyncFindNews(message):
     for WordLine in WordsLineWithSyn:
         for word in WordLine.split(" "):
                 for ParseNews in ParseResult:
+                    ParseNews[:ParseNews.find("<a href=")]
                     if ParseNews.lower().replace(':', ' ').replace('.', ' ').replace(',', ' ').replace('"', ' ')\
                             .replace('/', ' ').replace('\'', ' ').find(word + " ") != -1:
                         TempParseResult.append(ParseNews)

@@ -151,7 +151,15 @@ async def zerno_ru():
         i = first_part_link + i
         full_links.append(i)
 
-    message_text = ["%s %02s" % t for t in zip(cell_news_arr, full_links)]
+    link_mass = []
+    for link in full_links:
+        # link = re.sub(r'\b-', '\-', link)
+        # print(link)
+        link1 = '<a href="%s">zol.ru</a>' % link
+        # print(link1)
+        link_mass.append(link1)
+
+    message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
     # print(message_text)
     print('zerno.ru', type(message_text))
 
