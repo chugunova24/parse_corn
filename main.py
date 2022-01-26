@@ -323,6 +323,8 @@ def AddKeyWord(message):
 
             def answerAuto(message):
                 textUser = message.text.lower()
+                if textUser == 'стоп':
+                    return bot.send_message(message.chat.id, 'Процесс остановлен.')
                 if textUser == 'да':
                     f = open('dict.txt', 'a+', encoding='utf-8')
                     wordK = f.write(NLP_CASE(WordText))
@@ -342,10 +344,27 @@ def AddKeyWord(message):
             # print(wordK)
 
             nlp_result = NLP_CASE(WordText)
+            nlp_result = nlp_result.replace('\n', '')
+            new_nlp = nlp_result.split(' ')
+            for n in new_nlp:
+                if n == WordText:
+                    del new_nlp[new_nlp.index(n)]
+            # new_nlp = set(new_nlp) # плохая идея
+            # block = []
+            # for x in new_nlp:
+            #     block.append(x)
+            # # print(block)
+            new_nlp.insert(0, WordText)
+            nlp_result = ' '.join(new_nlp) + '\n'
+            # print(nlp_result)
+
             def questionAuto():
-                send = bot.send_message(message.chat.id, f"Добавить к слову <strong>{WordText}</strong> следующие синонимы?\n"
-                                                         f"Предпросмотр: <strong>{nlp_result}</strong>\n"
-                                                         f"Напишите боту <strong>'да'</strong> или <strong>'нет'</strong>.", parse_mode="html")
+                send = bot.send_message(message.chat.id,
+                                        f"Добавить к слову <strong>{WordText}</strong> следующие синонимы?\n"
+                                        f"Предпросмотр: <strong>{nlp_result}</strong>\n"
+                                        f"Напишите боту <strong>'да'</strong> или <strong>'нет'</strong>.\n"
+                                        f"Для отмены процесса напишите слово <strong><i>'стоп'</i></strong>.",
+                                        parse_mode="html")
                 bot.register_next_step_handler(send, answerAuto)
             questionAuto()
 
@@ -418,6 +437,8 @@ def AddSynonimTo(message):
 
             def answerAuto2(message):
                 textUser = message.text.lower()
+                if textUser == 'стоп':
+                    return bot.send_message(message.chat.id, 'Процесс остановлен.')
                 if textUser == 'да':
                     f = open('dict.txt', 'w', encoding='utf-8')
                     indStr = f_lines[indexLINE]
@@ -455,7 +476,8 @@ def AddSynonimTo(message):
                 send = bot.send_message(message.chat.id,
                                         f"Добавить к синониму <strong>{SynWordText}</strong> похожие слова?\n"
                                         f"Предпросмотр: <strong>{nlp_result}</strong>\n"
-                                        f"Напишите боту <strong>'да'</strong> или <strong>'нет'</strong>.",
+                                        f"Напишите боту <strong>'да'</strong> или <strong>'нет'</strong>.\n"
+                                        "Для отмены процесса напишите слово <strong><i>'стоп'</i></strong>.",
                                         parse_mode="html")
                 bot.register_next_step_handler(send, answerAuto2)
 
