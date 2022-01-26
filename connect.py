@@ -428,7 +428,9 @@ async def oilworld_ru():
 
     # date_today = '12.07.2021'
     date_today = format_date(x2, "yyy", locale='ru')
-    next_year = int(date_today) + 1
+    # print(date_today)
+    next_year = int(date_today) - 1
+    # print(next_year)
     # //div[contains(text(), ":")][not(contains(text(), "2021"))]
     # //span[contains(text(), ":")][not(contains(text(), "2021"))][not(contains(text(), "2022"))]/../a
 
@@ -501,6 +503,7 @@ async def oilworld_ru():
     # print(message_text)
     print('oilworld.ru', type(message_text))
     return message_text
+
 
 
 async def interfax_ru():
