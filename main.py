@@ -14,7 +14,7 @@ from lemminflect import getInflection, getAllInflections
 # from urllib.request import urlopen
 # from lxml import etree
 import re
-# from connect import GetParseResult
+from connect import GetParseResult
 
 # # работа браузера без интерфейса
 # option = Options()
