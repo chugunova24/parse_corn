@@ -599,8 +599,10 @@ async def lenta_ru_politic():
     # --ЕСТЬ, НО НЕТ--
     # '''//div[contains(text(), ":")][not(contains(text(), ","))]'''
 
-    mounth_today = date_today = format_date(x2, "MMMM", locale='ru_RU')
-    # print(mounth_today)
+    # mounth_today = date_today = format_date(x2, "MMMM", locale='ru_RU')
+    year = str(format_date(x2, "YYY", locale='ru_RU'))
+    year_last = str(int(year) - 1)
+
     URL = ['''https://lenta.ru/rubrics/world/politic/1/''', '''https://lenta.ru/rubrics/world/politic/2/''',
            '''https://lenta.ru/rubrics/world/politic/3/''', '''https://lenta.ru/rubrics/world/politic/4/''',
            '''https://lenta.ru/rubrics/world/politic/5/''', '''https://lenta.ru/rubrics/world/politic/6/''',
@@ -610,8 +612,10 @@ async def lenta_ru_politic():
     cell_news_arr = []
     for i in URL:
         # print(i)
-        xPATH = '''//time[contains(text(), ":")][not(contains(text(), "%s"))]/../../h3''' % mounth_today
-        xPATH_link = '''//time[contains(text(), ":")][not(contains(text(), "%s"))]/../../@href''' % mounth_today
+        xPATH = '''//time[contains(text(), ":")][not(contains(text(), "%s"))][not(contains(text(), "%s"))]/../../h3''' % (
+        year, year_last)
+        xPATH_link = '''//time[contains(text(), ":")][not(contains(text(), "%s"))][not(contains(text(), "%s"))]/../../@href''' % (
+        year, year_last)
 
         webpage = requests.get(i)
         soup = BeautifulSoup(webpage.content, "html.parser")
@@ -656,8 +660,10 @@ async def lenta_ru_economics():
     # --ЕСТЬ, НО НЕТ--
     # '''//div[contains(text(), ":")][not(contains(text(), ","))]'''
 
-    mounth_today = date_today = format_date(x2, "MMMM", locale='ru_RU')
-    # print(mounth_today)
+    # mounth_today = date_today = format_date(x2, "MMMM", locale='ru_RU')
+    year = str(format_date(x2, "YYY", locale='ru_RU'))
+    year_last = str(int(year) - 1)
+    # print(year, year_last)
 
     URL = '''https://lenta.ru/rubrics/economics/'''
 
@@ -665,8 +671,13 @@ async def lenta_ru_economics():
     cell_news_arr = []
 
     # print(i)
-    xPATH = '''//time[contains(text(), ":")][not(contains(text(), "%s"))]/../../../a/div/span''' % mounth_today
-    xPATH_link = '''//time[contains(text(), ":")][not(contains(text(), "%s"))]/../../../a/@href''' % mounth_today
+    # xPATH = '''//time[contains(text(), ":")][not(contains(text(), "%s"))]/../../../a/div/span''' % mounth_today
+    xPATH = '''////time[contains(text(), ":")][not(contains(text(), "%s"))][not(contains(text(), "%s"))]//../../../div[1]/span''' % (
+    year, year_last)
+    xPATH_link = '''//time[contains(text(), ":")][not(contains(text(), "%s"))][not(contains(text(), "%s"))]//../../../div[1]/span/../../@href''' % (
+    year, year_last)
+    # print(xPATH)
+    # print(xPATH_link)
 
     webpage = requests.get(URL)
     soup = BeautifulSoup(webpage.content, "html.parser")
