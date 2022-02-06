@@ -825,17 +825,15 @@ async def spglobal_com():
 
 async def rbc_ru():
     URL = '''https://www.rbc.ru/search/?query=+&project=rbcnews&dateFrom=%s&dateTo=%s''' % (date_today, date_today)
-    # print(URL)
-    yesterday = datetime.datetime.now() - datetime.timedelta(1)
-    date_yesterday = format_date(yesterday, "dd MMM", locale='ru')
-    date_yesterday = str(date_yesterday).replace('.', '')
-    # print(date_yesterday)
 
+    yesterday = x.replace(day=1) - datetime.timedelta(days=1)
+    mounth = str(format_date(x2, "MMMM", locale='ru')[:3])
+    mounth_last = str(format_date(yesterday, "MMMM", locale='ru')[:3])
 
-    # xPATH = '''//div[@class="search-item js-search-item"]/div/a/span/span[1]'''
-    xPATH = '''//div[@class="js-news-feed-list"]/a/div/div/span[1]'''
-    xPATH_link = '''//div[@class="js-news-feed-list"]/a/@href'''
-    xPATH_yesterday = '''//span[contains(.,"%s")]/../span[@class="news-feed__item__title"]''' % date_yesterday
+    xPATH = '''//*[@class='news-feed__item__date-text'][not(contains(text(), "%s"))][not(contains(text(), "%s"))]//../../span[contains(@class, 'news-feed__item__title')]''' % (
+    mounth, mounth_last)
+    xPATH_link = '''//*[@class='news-feed__item__date-text'][not(contains(text(), "%s"))][not(contains(text(), "%s"))]//../../span[contains(@class, 'news-feed__item__title')]//..//../../@href''' % (
+    mounth, mounth_last)
 
     driver.get(URL)
     try:
@@ -879,24 +877,6 @@ async def rbc_ru():
         a = re.sub("^\s+|\n|\r|\xa0|\s+$", '', a)
         cell_news_arr.append(a)
     # print(cell_news_arr)
-
-    b = [1]
-    # отсечь лишние новости
-    for i in range(1):
-        a = dom.xpath(xPATH_yesterday)[i].text
-        a = re.sub("^\s+|\n|\r|\xa0|\s+$", '', a)
-        yesterday_new = a
-        # print(yesterday_new)
-    # входит ли yesterday_new в список новостей?
-    if yesterday_new in cell_news_arr:
-        print(True)
-    else:
-        print(False)
-    try:
-        index_yesterday_new = cell_news_arr.index(yesterday_new)
-    except Exception as e:
-        print(e)
-    cell_news_arr = cell_news_arr[:index_yesterday_new]
 
     # поиск ссылок на содержимое блоков
     news_link_arr = []
