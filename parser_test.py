@@ -37,84 +37,99 @@ x = datetime.datetime.today()
 x2 = datetime.datetime.date(x)
 date_today = format_date(x2, locale='de_DE')
 
-def rbc_ru():
-    URL = '''https://www.rbc.ru/search/?query=+&project=rbcnews&dateFrom=%s&dateTo=%s''' % (date_today, date_today)
+def zol_ru():
 
-    yesterday = x.replace(day=1) - datetime.timedelta(days=1)
-    mounth = str(format_date(x2, "MMMM", locale='ru')[:3])
-    mounth_last = str(format_date(yesterday, "MMMM", locale='ru')[:3])
+    # BS4
+    if datetime.date.today().weekday() == 0:
+        yesterday = datetime.datetime.now() - datetime.timedelta(2)
+    else:
+        yesterday = datetime.datetime.now() - datetime.timedelta(1)
+    date_today = format_date(yesterday, "d MMMM yyy", locale='ru')
+    # date_today = '2 декабря 2021'
+
+    URL = 'https://www.zol.ru/news/grain/'
+    xPATH = '''//tr'''
+    xPATH_link = '''//a[@class='news_block']'''
 
 
-    xPATH = '''//*[@class='news-feed__item__date-text'][not(contains(text(), "%s"))][not(contains(text(), "%s"))]//../../span[contains(@class, 'news-feed__item__title')]''' % (mounth, mounth_last)
-    xPATH_link = '''//*[@class='news-feed__item__date-text'][not(contains(text(), "%s"))][not(contains(text(), "%s"))]//../../span[contains(@class, 'news-feed__item__title')]//..//../../@href''' % (mounth, mounth_last)
+    webpage = requests.get(URL)
+    soup = BeautifulSoup(webpage.text, 'lxml')
+    quotes = soup.findAll('td')
+    # print(quotes)
 
-    driver.get(URL)
+    mass = []
+    for quote in quotes:
+        # print(quote.text)
+        mass.append(quote.text)
+    # print(mass)
+
+    pre_mass = []
+    for i in mass:
+        i = re.sub("^\s+|\n|\r|\s+$", '', i)
+        pre_mass.append(i)
+    # print(pre_mass)
+
+
+    # поиск индекса строки с датой, проверка массива на пустоту
+    # print(date_today)
     try:
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(1)
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(1)
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(1)
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(1)
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(1)
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(1)
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(1)
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(1)
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(1)
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(1)
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(1)
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(1)
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        index_elem = pre_mass.index(date_today)
+        del pre_mass[index_elem:]
+        del pre_mass[0]
+        # print(pre_mass)
     except Exception as e:
-        print('rbc_ru:', e)
+        print('На сайте https://www.zol.ru/ (2) нет сегодня новостей!')
+        return
 
-    html = driver.page_source
-    soup = BeautifulSoup(html, 'html.parser')
-    dom = etree.HTML(str(soup))
-    count_index = dom.xpath(xPATH)
+    for i in pre_mass:
+        if len(i) == 5:
+            pre_mass.remove(i)
+    # print(pre_mass)
 
-    # поиск содержимого блоков
-    cell_news_arr = []
-    for i in range(0, len(count_index)):
-        a = dom.xpath(xPATH)[i].text
-        a = re.sub("^\s+|\n|\r|\xa0|\s+$", '', a)
-        cell_news_arr.append(a)
-    # print(cell_news_arr)
+    # # поиск ссылок на содержимое блоков
+    link_mass = soup.findAll('a', class_='news_block')
+    # print(link_mass)
 
-    # поиск ссылок на содержимое блоков
-    news_link_arr = []
-    for i in range(0, len(count_index)):
-        a = dom.xpath(xPATH_link)[i]
-        news_link_arr.append(a)
-    # print(news_link_arr)
+    l_mass = []
+    for i in link_mass:
+        i = i.get('href')
+        l_mass.append(i)
 
-    len_cell_mass = len(cell_news_arr)
-    news_link_arr = news_link_arr[:len_cell_mass]
+    # подсчитаем кол-во новостей за сегодня и сравняем кол-во ссылок
+    len_pre_mass = len(pre_mass)
+    # print(len_pre_mass)
+    len_l_mass = len(l_mass)
+    # print(len_l_mass)
+    link = l_mass[:len_pre_mass]
+    # print(len(link))
 
-    # преобразование ссылок в нужный вид
+    part_link_part = '''https://www.zol.ru'''
+    link_news = []
+    for i in link:
+        i = part_link_part + i
+        link_news.append(i)
+    # print(link_news)
+
     link_mass = []
-    for link in news_link_arr:
-        link1 = '<a href="%s">rbc.ru</a>' % link
+    for link in link_news:
+        # link = re.sub(r'\b-', '\-', link)
+        # print(link)
+        link1 = '<a href="%s">zol.ru</a>' % link
+        # print(link1)
         link_mass.append(link1)
 
-    message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
-    if message_text == []:
-        print('На сайте https://www.rbc.ru/search нет сегодня новостей!')
-    # print(message_text)
-    print('rbc.ru', type(message_text))
+    message_text = ["%s %02s" % t for t in zip(pre_mass, link_mass)]
+    print(message_text)
 
-    return message_text
+    # for x in message_text:
+    #     bot.send_message(message.chat.id, x, disable_web_page_preview=True, parse_mode='html')
+    print('zol.ru', type(message_text))
 
-rbc_ru()
+    if message_text != []:
+        return message_text
+
+zol_ru()
+
+
 
 print("--- %s seconds ---" % (time.time() - start_time))

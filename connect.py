@@ -205,12 +205,12 @@ async def zol_ru():
     # print(date_today)
     try:
         index_elem = pre_mass.index(date_today)
-    except ValueError:
+        del pre_mass[index_elem:]
+        del pre_mass[0]
+        # print(pre_mass)
+    except Exception as e:
         print('На сайте https://www.zol.ru/ (2) нет сегодня новостей!')
         return
-    del pre_mass[index_elem:]
-    del pre_mass[0]
-    # print(pre_mass)
 
     for i in pre_mass:
         if len(i) == 5:
