@@ -584,7 +584,7 @@ def NLP_CASE(a):
         spisok = []
         for key, value in all_infl.items():
             for val in value:
-                spisok.append(val)
+                spisok.append(str(val).replace('ё', 'е'))
         spisok = list(set(spisok))
         words = ' '.join(spisok)
         return words
