@@ -584,7 +584,7 @@ def NLP_CASE(a):
         spisok = []
         for key, value in all_infl.items():
             for val in value:
-                spisok.append(str(val).replace('ё', 'е'))
+                spisok.append(val)
         spisok = list(set(spisok))
         words = ' '.join(spisok)
         return words
@@ -596,7 +596,7 @@ def NLP_CASE(a):
         words_lex = []
         # words_lex.append(a)
         for i in butyavka_lex:
-            words_lex.append(i.word)
+            words_lex.append(str(i.word).replace('ё','е'))
         words = ' '.join(words_lex) + '\n'
         return words
 
