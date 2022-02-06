@@ -658,7 +658,7 @@ async def backup_dict():
 def execute_backup_dict():
     print('--бэкап--')
     asyncio.run(backup_dict())
-    t = Timer(600.0, execute_backup_dict)  #3600.0 10ч
+    t = Timer(3600.0, execute_backup_dict)  #3600.0 10ч
     t.start()
 execute_backup_dict()
 
