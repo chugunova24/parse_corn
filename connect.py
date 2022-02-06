@@ -83,8 +83,8 @@ async def MainParser():
                         task14, task15, task16, task17, task18, task19, task20, task21, task22])
     # await asyncio.wait([task1, task2])
 
-    try:
-        global AllParseResult
+    # try:
+    global AllParseResult
         # AllParseResult = list(itertools.chain(task1.result(), task2.result()))
                          # task1.result() + task2.result()
                          # + task3.result() + task4.result()
@@ -95,18 +95,18 @@ async def MainParser():
                          # task21.result() + task22.result()
 
         # С проверкой на None!
-        AllTasks = [task1.result(), task2.result(), task3.result(), task4.result(), task5.result(),\
-                    task6.result(), task7.result(), task8.result(), task9.result(), task10.result(), \
-                    task11.result(), task12.result(), task13.result(), task14.result(), task15.result(), \
-                    task16.result(), task17.result(), task18.result(), task19.result(), task20.result(), \
-                    task21.result(), task22.result()]
-        print('ОБЩИЙ ЛИСТ СОЗДАН')
-        for i in AllTasks:
-            if i != None:
-                AllParseResult.append(i)
-        print('ПОЛНЫЙ СПИСОК', AllParseResult)
-    except Exception as e:
-        print('ОШИБКА ПОИСКА', e)
+    AllTasks = [task1.result(), task2.result(), task3.result(), task4.result(), task5.result(),\
+                task6.result(), task7.result(), task8.result(), task9.result(), task10.result(), \
+                task11.result(), task12.result(), task13.result(), task14.result(), task15.result(), \
+                task16.result(), task17.result(), task18.result(), task19.result(), task20.result(), \
+                task21.result(), task22.result()]
+    print('ОБЩИЙ ЛИСТ СОЗДАН')
+    for i in AllTasks:
+        if i != None:
+            AllParseResult.append(i)
+    print('ПОЛНЫЙ СПИСОК', AllParseResult)
+    # except Exception as e:
+    #     print('ОШИБКА ПОИСКА', e)
     print('ЗАВЕРШЕНО')
 
 
