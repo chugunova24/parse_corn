@@ -644,11 +644,15 @@ def FindingString(message):
 
 # -------------- BACKUP DICT -------------------
 
+
 async def backup_dict():
-    doc = open('dict.txt', 'rb')
-    bot.send_message(1883531134, 'Резервное копирование')
-    bot.send_document(1883531134, doc)
-    doc.close()
+    try:
+        doc = open('dict.txt', 'rb')
+        bot.send_message(1883531134, 'Резервное копирование')
+        bot.send_document(1883531134, doc)
+        doc.close()
+    except Exception as e:
+        bot.send_message(1883531134, 'Резервное копирование: файл пуст.')
 
 
 def execute_backup_dict():
