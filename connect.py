@@ -103,7 +103,7 @@ async def MainParser():
     print('ОБЩИЙ ЛИСТ СОЗДАН')
     for i in AllTasks:
         if i != None:
-            AllParseResult.append(i)
+            AllParseResult.extend(i)
     print('ПОЛНЫЙ СПИСОК', AllParseResult)
     # except Exception as e:
     #     print('ОШИБКА ПОИСКА', e)
