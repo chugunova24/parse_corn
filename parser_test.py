@@ -37,64 +37,58 @@ x = datetime.datetime.today()
 x2 = datetime.datetime.date(x)
 date_today = format_date(x2, locale='de_DE')
 
-def lenta_ru_politic():
-    # --ЕСТЬ, НО НЕТ--
-    # '''//div[contains(text(), ":")][not(contains(text(), ","))]'''
+def zerno_ru():
 
-    # mounth_today = date_today = format_date(x2, "MMMM", locale='ru_RU')
-    year = str(format_date(x2, "YYY", locale='ru_RU'))
-    year_last = str(int(year) - 1)
+    # date_today = '03.12.2021'
+    xPATH = '''//*[text()='%s']//../../span[2]/span/a''' % date_today
+    xPATH_link = '''//*[text()='%s']//../../span[2]/span/a/@href''' % date_today
+    print(xPATH)
 
-    URL = ['''https://lenta.ru/rubrics/world/politic/1/''', '''https://lenta.ru/rubrics/world/politic/2/''',
-           '''https://lenta.ru/rubrics/world/politic/3/''', '''https://lenta.ru/rubrics/world/politic/4/''',
-           '''https://lenta.ru/rubrics/world/politic/5/''', '''https://lenta.ru/rubrics/world/politic/6/''',
-           '''https://lenta.ru/rubrics/world/politic/7/''', '''https://lenta.ru/rubrics/world/politic/8/''']
+    URL = 'https://zerno.ru/news_list'
+    # response = urlopen(url)
+    # htmlparser = etree.HTMLParser()
+    # tree = etree.parse(response, htmlparser)
+    # a = tree.xpath(xPATH_link)
+    webpage = requests.get(URL)
+    soup = BeautifulSoup(webpage.content, "html.parser")
+    dom = etree.HTML(str(soup))
+    count_index = dom.xpath(xPATH)
+    # count_index = len(count_index)
 
-    news_link_arr = []
+    # поиск содержимого блоков
     cell_news_arr = []
-    for i in URL:
-        # print(i)
-        xPATH = '''//time[contains(text(), ":")][not(contains(text(), "%s"))][not(contains(text(), "%s"))]/../../h3''' % (year, year_last)
-        xPATH_link = '''//time[contains(text(), ":")][not(contains(text(), "%s"))][not(contains(text(), "%s"))]/../../@href''' % (year, year_last)
+    for i in range(0, len(count_index)):
+        a = dom.xpath(xPATH)[i].text
+        cell_news_arr.append(a)
+    # print(cell_news_arr)
 
-        webpage = requests.get(i)
-        soup = BeautifulSoup(webpage.content, "html.parser")
-        dom = etree.HTML(str(soup))
-        count_index = dom.xpath(xPATH)
-
-        for i in range(0, len(count_index)):
-            a = dom.xpath(xPATH)[i].text
-            cell_news_arr.append(a)
-
-        for i in range(0, len(count_index)):
+    # поиск ссылок на содержимое блоков
+    news_link_arr = []
+    for i in range(0, len(count_index)):
             a = dom.xpath(xPATH_link)[i]
             news_link_arr.append(a)
-    # print(cell_news_arr)
     # print(news_link_arr)
-
-    # преобразование ссылок
-    first_part_link = 'https://lenta.ru'
-    link_news = []
+    full_links = []
     for i in news_link_arr:
+        first_part_link = 'https://zerno.ru'
         i = first_part_link + i
-        link_news.append(i)
-    # print(link_news)
+        full_links.append(i)
 
-    # преобразование ссылок в нужный вид
     link_mass = []
-    for link in link_news:
-        link = re.sub("^\s+|\n|\r|\xa0|\s+$", '', link)
-        link1 = '<a href="%s">lenta.ru</a>' % link
-
+    for link in full_links:
+        # link = re.sub(r'\b-', '\-', link)
+        # print(link)
+        link1 = '<a href="%s">zerno.ru</a>' % link
+        # print(link1)
         link_mass.append(link1)
 
     message_text = ["%s %02s" % t for t in zip(cell_news_arr, link_mass)]
-    if message_text == []:
-        print('На сайте https://lenta.ru/rubrics/world/politic/1/ нет сегодня новостей!')
-    # print(message_text)
-    print('lenta.ru/rubrics/world/politic', type(message_text))
-    return message_text
+    print(message_text)
+    print('zerno.ru', type(message_text))
 
-lenta_ru_politic()
+    if message_text != []:
+        return message_text
+
+zerno_ru()
 
 print("--- %s seconds ---" % (time.time() - start_time))

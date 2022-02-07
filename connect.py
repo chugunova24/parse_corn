@@ -48,7 +48,7 @@ x = datetime.datetime.today()
 x2 = datetime.datetime.date(x)
 date_today = format_date(x2, locale='de_DE')
 
-
+#ssssss
 
 AllParseResult = []
 
@@ -155,7 +155,7 @@ async def zerno_ru():
     for link in full_links:
         # link = re.sub(r'\b-', '\-', link)
         # print(link)
-        link1 = '<a href="%s">zol.ru</a>' % link
+        link1 = '<a href="%s">zerno.ru</a>' % link
         # print(link1)
         link_mass.append(link1)
 
