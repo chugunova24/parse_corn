@@ -85,6 +85,7 @@ async def MainParser():
 
     # try:
     global AllParseResult
+    AllParseResult = []
         # AllParseResult = list(itertools.chain(task1.result(), task2.result()))
                          # task1.result() + task2.result()
                          # + task3.result() + task4.result()
@@ -107,7 +108,7 @@ async def MainParser():
     print('ПОЛНЫЙ СПИСОК', AllParseResult)
     # except Exception as e:
     #     print('ОШИБКА ПОИСКА', e)
-    print('ЗАВЕРШЕНО')
+    print('ЗАВЕРШЕНО', type(AllParseResult))
 
 
 
