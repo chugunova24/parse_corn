@@ -696,6 +696,7 @@ async def asyncFindNews(message):
     # print('\nстроки прочитаны')
     # поиск в файле строки с нужным набором слов (выход str)
 
+    ParseResult = []
     ParseResult = a
     TempParseResult = []
 
